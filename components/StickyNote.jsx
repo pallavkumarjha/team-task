@@ -55,8 +55,8 @@ export default function StickyNote({
     const payload = {
       task: existingRequest.task,
       id: existingRequest.id,
-      isCritical: false,
-      isActive: true,
+      isCritical: existingRequest.isCritical,
+      isActive: existingRequest.isActive,
       isCompleted: !existingRequest.isCompleted,
       metadata: {
         fromId: selectedUser.id,
@@ -77,12 +77,16 @@ export default function StickyNote({
     setRequests(
       requests?.map((req) => (req.id === editingId ? { ...req, text: editText } : req))
     )
+    const existingRequest = requests.find((req) => req.id === editingId)
+    if (!existingRequest) {
+      return
+    }
     const payload = {
       task: editText,
-      id: editingId,
-      isCritical: false,
-      isActive: true,
-      isCompleted: false,
+      id: existingRequest.id,
+      isCritical: existingRequest.isCritical,
+      isActive: existingRequest.isActive,
+      isCompleted: existingRequest.isCompleted,
       metadata: {
         fromId: selectedUser.id,
         fromName: selectedUser.name,
@@ -107,9 +111,9 @@ export default function StickyNote({
     const payload = {
       task: existingRequest.task,
       id: existingRequest.id,
-      isActive: false,
-      isCritical: false,
-      isCompleted: !existingRequest.isCompleted,
+      isActive: !existingRequest.isActive,
+      isCritical: existingRequest.isCritical,
+      isCompleted: existingRequest.isCompleted,
       metadata: {
         fromId: selectedUser.id,
         fromName: selectedUser.name,
@@ -135,7 +139,7 @@ export default function StickyNote({
     const payload = {
       task: existingRequest.task,
       id: existingRequest.id,
-      isActive: true,
+      isActive: existingRequest.isActive,
       isCritical: !existingRequest.isCritical,
       isCompleted: existingRequest.isCompleted,
       metadata: {
@@ -148,7 +152,7 @@ export default function StickyNote({
     onUpdateTask(payload)
   }
 
-  const pendingTasks = requests.filter((req) => !req.isCompleted).length
+  const pendingTasks = requests.filter((req) => !req.isCompleted && req.isActive).length
 
   return (
     (<div className="bg-white rounded-xl shadow-lg overflow-hidden">
