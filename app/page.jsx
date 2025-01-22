@@ -212,8 +212,21 @@ export default function Home() {
       }
 
       const tasksRef = doc(collection(db, "tasks"), boardDocumentId)
+      const currentTasks = (await getDoc(tasksRef)).data() || {}
+
+      const userTasks = currentTasks[task.metadata.toId] || []
+      const existingTaskIndex = userTasks.findIndex(existingTask => existingTask.id === task.id)
+
+      if (existingTaskIndex !== -1) {
+        // Update existing task
+        userTasks[existingTaskIndex] = { ...userTasks[existingTaskIndex], ...taskToSave }
+      } else {
+        // Add new task
+        userTasks.push(taskToSave)
+      }
+
       await setDoc(tasksRef, {
-        [task.metadata.toId]: arrayUnion(taskToSave)
+        [task.metadata.toId]: userTasks
       }, { merge: true })
 
       return {
@@ -227,11 +240,34 @@ export default function Home() {
     }
   }
 
+  const onUpdateTask = async (task) => {
+    try {
+      const updatedTask = await saveTaskInTaskCollectionWhereCollectionIdIsBoardId(task)
+
+      if (updatedTask) {
+        setTaskList((prevTasks) => {
+          const updatedTasks = { ...prevTasks }
+          updatedTasks[task.metadata.toId] = updatedTasks[task.metadata.toId].map((t) => {
+            if (t.id === task.id) {
+              return updatedTask
+            } else {
+              return t
+            }
+          })
+          return updatedTasks
+        })
+      }
+    } catch (error) {
+      console.error("Error updating task:", error)
+      alert(error.message || "Failed to update task")
+    }
+  }
+
   return (
     (<main className="min-h-screen bg-blue-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-blue-800">Team Board</h1>
+          <h1 className="text-4xl font-bold text-blue-800">Team Task</h1>
           <div className="flex items-center gap-4">
             <BoardSelector
               boards={boards}
@@ -261,6 +297,7 @@ export default function Home() {
           onDeleteMember={deleteTeamMember}
           onSaveTask={saveTaskInTaskCollectionWhereCollectionIdIsBoardId}
           taskList={taskList}
+          onUpdateTask={onUpdateTask}
         />
       </div>
     </main>)

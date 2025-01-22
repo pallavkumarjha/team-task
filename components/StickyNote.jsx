@@ -12,13 +12,12 @@ export default function StickyNote({
   memberId,
   selectedUser,
   onSaveTask,
-  tasks = []
+  tasks = [],
+  onUpdateTask
 }) {
   const [requests, setRequests] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState("")
-
-  console.log('tasks', memberName, tasks)
 
   useEffect(() => {
     setRequests(tasks)
@@ -30,6 +29,7 @@ export default function StickyNote({
       id: uuidv4(),
       isCritical: false,
       isCompleted: false,
+      isActive: true,
       metadata: {
         fromId: selectedUser.id,
         fromName: selectedUser.name,
@@ -45,9 +45,27 @@ export default function StickyNote({
   }
 
   const toggleRequest = (id) => {
+    const existingRequest = requests.find((req) => req.id === id)
+    if (!existingRequest) {
+      return
+    }
     setRequests(
       requests.map((req) => (req.id === id ? { ...req, isCompleted: !req.isCompleted } : req))
     )
+    const payload = {
+      task: existingRequest.task,
+      id: existingRequest.id,
+      isCritical: false,
+      isActive: true,
+      isCompleted: !existingRequest.isCompleted,
+      metadata: {
+        fromId: selectedUser.id,
+        fromName: selectedUser.name,
+        toId: memberId,
+        toName: memberName
+      }
+    }
+    onUpdateTask(payload)
   }
 
   const startEdit = (id, text) => {
@@ -59,17 +77,75 @@ export default function StickyNote({
     setRequests(
       requests.map((req) => (req.id === editingId ? { ...req, text: editText } : req))
     )
+    const payload = {
+      task: editText,
+      id: editingId,
+      isCritical: false,
+      isActive: true,
+      isCompleted: false,
+      metadata: {
+        fromId: selectedUser.id,
+        fromName: selectedUser.name,
+        toId: memberId,
+        toName: memberName
+      }
+    }
+    onUpdateTask(payload)
+
     setEditingId(null)
   }
 
   const deleteRequest = (id) => {
     setRequests(requests.filter((req) => req.id !== id))
+    const existingRequest = requests.find((req) => req.id === id)
+    if (!existingRequest) {
+      return
+    }
+    setRequests(
+      requests.map((req) => (req.id === id ? { ...req, isActive: !req.isActive } : req))
+    )
+    const payload = {
+      task: existingRequest.task,
+      id: existingRequest.id,
+      isActive: false,
+      isCritical: false,
+      isCompleted: !existingRequest.isCompleted,
+      metadata: {
+        fromId: selectedUser.id,
+        fromName: selectedUser.name,
+        toId: memberId,
+        toName: memberName
+      }
+    }
+    onUpdateTask(payload)
   }
 
   const toggleCritical = (id) => {
     setRequests(
       requests.map((req) => (req.id === id ? { ...req, isCritical: !req.isCritical } : req))
     )
+
+    const existingRequest = requests.find((req) => req.id === id)
+    if (!existingRequest) {
+      return
+    }
+    setRequests(
+      requests.map((req) => (req.id === id ? { ...req, isCritical: !req.isCritical } : req))
+    )
+    const payload = {
+      task: existingRequest.task,
+      id: existingRequest.id,
+      isActive: true,
+      isCritical: !existingRequest.isCritical,
+      isCompleted: existingRequest.isCompleted,
+      metadata: {
+        fromId: selectedUser.id,
+        fromName: selectedUser.name,
+        toId: memberId,
+        toName: memberName
+      }
+    }
+    onUpdateTask(payload)
   }
 
   const pendingTasks = requests.filter((req) => !req.isCompleted).length
@@ -86,7 +162,7 @@ export default function StickyNote({
           {requests?.map((request) => (
             <li
               key={request.id}
-              className={`flex items-center gap-2 p-2 rounded ${request.isCritical ? "bg-red-100" : "bg-gray-50"}`}>
+              className={`flex items-center gap-2 p-2 rounded ${request.isCritical ? "bg-red-100" : "bg-gray-50"} ${request.isActive === false ? "hidden" : ""}`}>
               {editingId === request.id ? (
                 <form
                   onSubmit={(e) => {
@@ -119,7 +195,7 @@ export default function StickyNote({
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => startEdit(request.id, request.text)}>
+                      onClick={() => startEdit(request.id, request.task)}>
                       <Pencil className="h-4 w-4 text-blue-500" />
                     </Button>
                     <Button variant="ghost" size="sm" onClick={() => deleteRequest(request.id)}>

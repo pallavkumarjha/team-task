@@ -4,6 +4,7 @@ export default function Board({
   teamMembers,
   selectedUser,
   onSaveTask,
+  onUpdateTask,
   taskList
 }) {
   const getTasksForMember = (member) => {
@@ -20,6 +21,7 @@ export default function Board({
           tasks={getTasksForMember(member)}
           selectedUser={selectedUser}
           onSaveTask={onSaveTask}
+          onUpdateTask={onUpdateTask}
         />
       ))}
     </div>)
