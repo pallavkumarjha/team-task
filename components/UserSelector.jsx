@@ -6,14 +6,14 @@ export default function UserSelector({
   onSelectUser
 }) {
   return (
-    (<Select value={selectedUser} onValueChange={onSelectUser}>
+    (<Select value={selectedUser.id} onValueChange={onSelectUser}>
       <SelectTrigger className="w-[200px]">
         <SelectValue placeholder="Select identity" />
       </SelectTrigger>
       <SelectContent>
         {users.map((user) => (
-          <SelectItem key={user} value={user}>
-            {user}
+          <SelectItem key={user.id} value={user.id}>
+            {user.name}
           </SelectItem>
         ))}
       </SelectContent>

@@ -1,35 +1,52 @@
 "use client";
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Pencil, X, Check, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import RequestForm from "@/components/RequestForm"
+import { v4 as uuidv4 } from 'uuid'
 
 export default function StickyNote({
   memberName,
-  selectedUser
+  memberId,
+  selectedUser,
+  onSaveTask,
+  tasks = []
 }) {
   const [requests, setRequests] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState("")
 
+  console.log('tasks', memberName, tasks)
+
+  useEffect(() => {
+    setRequests(tasks)
+  }, [tasks])
+
   const addRequest = (text) => {
+    const payload = {
+      task: text,
+      id: uuidv4(),
+      isCritical: false,
+      isCompleted: false,
+      metadata: {
+        fromId: selectedUser.id,
+        fromName: selectedUser.name,
+        toId: memberId,
+        toName: memberName
+      }
+    }
     setRequests([
       ...requests,
-      {
-        id: Date.now(),
-        text,
-        completed: false,
-        submittedBy: selectedUser,
-        isCritical: false,
-      },
+      payload,
     ])
+    onSaveTask(payload)
   }
 
   const toggleRequest = (id) => {
     setRequests(
-      requests.map((req) => (req.id === id ? { ...req, completed: !req.completed } : req))
+      requests.map((req) => (req.id === id ? { ...req, isCompleted: !req.isCompleted } : req))
     )
   }
 
@@ -55,7 +72,7 @@ export default function StickyNote({
     )
   }
 
-  const pendingTasks = requests.filter((req) => !req.completed).length
+  const pendingTasks = requests.filter((req) => !req.isCompleted).length
 
   return (
     (<div className="bg-white rounded-xl shadow-lg overflow-hidden">
@@ -66,7 +83,7 @@ export default function StickyNote({
       </div>
       <div className="p-4">
         <ul className="space-y-2 mb-4">
-          {requests.map((request) => (
+          {requests?.map((request) => (
             <li
               key={request.id}
               className={`flex items-center gap-2 p-2 rounded ${request.isCritical ? "bg-red-100" : "bg-gray-50"}`}>
@@ -88,9 +105,9 @@ export default function StickyNote({
               ) : (
                 <>
                   <span
-                    className={`flex-1 cursor-pointer ${request.completed ? "line-through text-gray-400" : "text-gray-700"}`}
+                    className={`flex-1 cursor-pointer ${request.isCompleted ? "line-through text-gray-400" : "text-gray-700"}`}
                     onClick={() => toggleRequest(request.id)}>
-                    {request.text} <span className="text-xs text-gray-500">({request.submittedBy})</span>
+                    {request.task} <span className="text-xs text-gray-500">({request.metadata.fromName})</span>
                   </span>
                   <div className="flex items-center gap-2">
                     <Switch
