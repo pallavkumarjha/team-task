@@ -50,7 +50,7 @@ export default function StickyNote({
       return
     }
     setRequests(
-      requests.map((req) => (req.id === id ? { ...req, isCompleted: !req.isCompleted } : req))
+      requests?.map((req) => (req.id === id ? { ...req, isCompleted: !req.isCompleted } : req))
     )
     const payload = {
       task: existingRequest.task,
@@ -75,7 +75,7 @@ export default function StickyNote({
 
   const saveEdit = () => {
     setRequests(
-      requests.map((req) => (req.id === editingId ? { ...req, text: editText } : req))
+      requests?.map((req) => (req.id === editingId ? { ...req, text: editText } : req))
     )
     const payload = {
       task: editText,
@@ -102,7 +102,7 @@ export default function StickyNote({
       return
     }
     setRequests(
-      requests.map((req) => (req.id === id ? { ...req, isActive: !req.isActive } : req))
+      requests?.map((req) => (req.id === id ? { ...req, isActive: !req.isActive } : req))
     )
     const payload = {
       task: existingRequest.task,
@@ -122,7 +122,7 @@ export default function StickyNote({
 
   const toggleCritical = (id) => {
     setRequests(
-      requests.map((req) => (req.id === id ? { ...req, isCritical: !req.isCritical } : req))
+      requests?.map((req) => (req.id === id ? { ...req, isCritical: !req.isCritical } : req))
     )
 
     const existingRequest = requests.find((req) => req.id === id)
@@ -130,7 +130,7 @@ export default function StickyNote({
       return
     }
     setRequests(
-      requests.map((req) => (req.id === id ? { ...req, isCritical: !req.isCritical } : req))
+      requests?.map((req) => (req.id === id ? { ...req, isCritical: !req.isCritical } : req))
     )
     const payload = {
       task: existingRequest.task,

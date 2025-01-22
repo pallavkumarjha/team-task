@@ -247,7 +247,7 @@ export default function Home() {
       if (updatedTask) {
         setTaskList((prevTasks) => {
           const updatedTasks = { ...prevTasks }
-          updatedTasks[task.metadata.toId] = updatedTasks[task.metadata.toId].map((t) => {
+          updatedTasks[task.metadata.toId] = updatedTasks[task.metadata.toId]?.map((t) => {
             if (t.id === task.id) {
               return updatedTask
             } else {

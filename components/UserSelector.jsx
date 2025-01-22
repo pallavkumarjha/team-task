@@ -11,7 +11,7 @@ export default function UserSelector({
         <SelectValue placeholder="Select identity" />
       </SelectTrigger>
       <SelectContent>
-        {users.map((user) => (
+        {users?.map((user) => (
           <SelectItem key={user.id} value={user.id}>
             {user.name}
           </SelectItem>

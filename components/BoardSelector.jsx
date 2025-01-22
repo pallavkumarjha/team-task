@@ -28,7 +28,7 @@ export default function BoardSelector({
             <SelectValue placeholder="Select board" />
           </SelectTrigger>
           <SelectContent>
-            {boards.map((board) => (
+            {boards?.map((board) => (
               <SelectItem
                 value={board.id}
                 key={board.id}

@@ -13,7 +13,7 @@ export default function Board({
 
   return (
     (<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {teamMembers.map((member, index) => (
+      {teamMembers?.map((member, index) => (
         <StickyNote
           key={member.id+index}
           memberName={member.name}
