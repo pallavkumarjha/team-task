@@ -432,10 +432,10 @@ function Footer() {
             </li>
             <li>
               <a
-                href="#pricing"
+                href="/privacy"
                 className="text-base text-slate-300 hover:text-teal-300 transition-colors"
               >
-                Pricing
+                Privacy Policy
               </a>
             </li>
           </ul>
