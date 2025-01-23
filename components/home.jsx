@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowRight, MessageSquare, Users, Zap, Moon, Sun, Menu } from "lucide-react"
+import { ArrowRight, MessageSquare, Users, Zap, Moon, Sun, Menu, LogOut, User, Settings, Loader2 } from "lucide-react"
+import { signOut, useSession } from "next-auth/react";
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 // import { useDarkMode } from "@/hooks/useDarkMode"
 import { useDarkMode } from '../hooks/useDarkMode'
 import { Button } from "../components/ui/button"
@@ -11,12 +13,81 @@ import ContactSection from "./ContactForm"
 export default function HomePage() {
   const { isDarkMode, toggleDarkMode } = useDarkMode()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isGettingProfile, setIsGettingProfile] = useState(true)
+  const { data: session, status } = useSession();
+  const { user } = session || {};
 
   useEffect(() => {
     document.body.classList.toggle("dark", isDarkMode)
   }, [isDarkMode])
 
+  useEffect(() => {
+    if (status !== 'loading') {
+      setIsGettingProfile(false)
+    }
+  }, [status])
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/login' });
+  };
+
+  const renderLoginArea = () => {
+    if (isGettingProfile) {
+      return (
+        <div className="flex items-center mr-8">
+          <Loader2 className="animate-spin h-5 w-5" />
+        </div>
+      )
+    }
+
+    return user ? (
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button 
+            className="hidden sm:inline-flex items-center justify-center w-10 h-10 mr-8 rounded-full border-2 border-emerald-500 hover:ring-2 hover:ring-emerald-300 transition-all"
+          >
+            <img 
+              src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`} 
+              alt={user.name} 
+              className="w-full h-full rounded-full object-cover"
+            />
+          </button>
+        </DropdownMenu.Trigger>
+
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content 
+            className="z-50 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-1 min-w-[200px] transition-colors duration-300"
+            sideOffset={5}
+          >
+            <DropdownMenu.Item 
+              className="flex items-center px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md cursor-pointer text-slate-900 dark:text-slate-200 transition-colors"
+              onSelect={handleLogout}
+            >
+              Hello, {session.user.name}
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator className="my-1" />
+            <DropdownMenu.Item 
+              className="flex items-center px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900 rounded-md cursor-pointer text-red-500 transition-colors"
+              onSelect={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenu.Item>
+            <DropdownMenu.Arrow className="fill-slate-200 dark:fill-slate-700" />
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
+    ) : (
+      <Link
+        href="/login"
+        className="hidden sm:inline-flex items-center px-4 mr-16 py-2 border border-transparent text-sm font-medium rounded-full shadow-neomorphic-light dark:shadow-neomorphic-dark text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
+      >
+        Login
+      </Link>
+    )
+  }
 
   return (
     <div
@@ -37,12 +108,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center">
-              <Link
-                href="/login"
-                className="hidden sm:inline-flex items-center px-4 mr-16 py-2 border border-transparent text-sm font-medium rounded-full shadow-neomorphic-light dark:shadow-neomorphic-dark text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-              >
-                Login
-              </Link>
+              {renderLoginArea()}
               <Button
                 onClick={toggleDarkMode}
                 className="p-2 rounded-full bg-slate-200 dark:bg-slate-700 shadow-neomorphic-light dark:shadow-neomorphic-dark mr-2"
