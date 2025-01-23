@@ -1,7 +1,8 @@
 "use client";
-import  HomePage  from "@/components/home"
-export default function Home() {
 
+import HomePage from "../components/home";
+
+export default function Home() {
   return (
     <HomePage />
   );

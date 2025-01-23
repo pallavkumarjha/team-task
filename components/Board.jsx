@@ -1,4 +1,4 @@
-import StickyNote from "@/components/StickyNote"
+import StickyNote from "../components/StickyNote"
 
 export default function Board({
   teamMembers,

@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState } from "react"
 import { Pencil, X, Check, AlertTriangle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
-import RequestForm from "@/components/RequestForm"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Switch } from "../components/ui/switch"
+import RequestForm from "../components/RequestForm"
 import { v4 as uuidv4 } from 'uuid'
 
 export default function StickyNote({

@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ArrowRight, MessageSquare, Users, Zap, Moon, Sun, Menu } from "lucide-react"
-import { useDarkMode } from "@/hooks/useDarkMode"
-// import { useDarkMode } from "../hooks/useDarkMode"
+// import { useDarkMode } from "@/hooks/useDarkMode"
+import { useDarkMode } from '../hooks/useDarkMode'
+import { Button } from "../components/ui/button"
 
 export default function HomePage() {
   const { isDarkMode, toggleDarkMode } = useDarkMode()
@@ -36,24 +37,24 @@ export default function HomePage() {
             </div>
             <div className="flex items-center">
               <Link
-                href="/dashboard"
+                href="/login"
                 className="hidden sm:inline-flex items-center px-4 mr-16 py-2 border border-transparent text-sm font-medium rounded-full shadow-neomorphic-light dark:shadow-neomorphic-dark text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
               >
-                Dashboard
+                Login
               </Link>
-              <button
+              <Button
                 onClick={toggleDarkMode}
                 className="p-2 rounded-full bg-slate-200 dark:bg-slate-700 shadow-neomorphic-light dark:shadow-neomorphic-dark mr-2"
               >
                 {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
+              </Button>
               <div className="sm:hidden">
-                <button
+                <Button
                   onClick={toggleMenu}
                   className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500"
                 >
                   <Menu className="h-6 w-6" />
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -391,12 +392,12 @@ function ContactSection() {
               ></textarea>
             </div>
             <div>
-              <button
+              <Button
                 type="submit"
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-neomorphic-light dark:shadow-neomorphic-dark text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-300"
               >
                 Send Message
-              </button>
+              </Button>
             </div>
           </form>
         </div>

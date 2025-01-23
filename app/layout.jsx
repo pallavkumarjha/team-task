@@ -1,5 +1,7 @@
-import "@/app/globals.css"
+// import "@/app/globals.css"
+import './globals.css'
 import { Inter } from "next/font/google"
+import Provider from "../providers/SessionProvider";
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -13,7 +15,11 @@ export default function RootLayout({
 }) {
   return (
     (<html lang="en">
-      <body className={`${inter.className} bg-gray-50`}>{children}</body>
+      <body className={`${inter.className} bg-gray-50`}>
+      <Provider>
+          {children}
+        </Provider>
+      </body>
     </html>)
   );
 }

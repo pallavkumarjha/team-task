@@ -1,21 +1,28 @@
 "use client";
 import { useState, useEffect } from "react"
-import Board from "@/components/Board"
-import NewNoteForm from "@/components/NewNoteForm"
-import UserSelector from "@/components/UserSelector"
-import BoardSelector from "@/components/BoardSelector"
-import { Card, CardContent } from "@/components/ui/card"
-import { Info } from "lucide-react"
-import { db } from "@/lib/firebase"
+import Board from "../../components/Board"
+import NewNoteForm from "../../components/NewNoteForm"
+import UserSelector from "../../components/UserSelector"
+import BoardSelector from "../../components/BoardSelector"
+import { Card, CardContent } from "../../components/ui/card"
+import { Info, LogOut } from "lucide-react"
+import { db } from "../../lib/firebase"
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, setDoc, arrayUnion, getDoc } from "firebase/firestore"
 import { v4 as uuidv4 } from 'uuid'
+import { useSessionData } from "../../hooks/useSessionData";
+import { redirect } from "next/navigation";
+import { signOut } from "next-auth/react";
+import { Button } from "../../components/ui/button";
 
 export default function Dashboard() {
+  const { user, session } = useSessionData();
+
   const [teamMembers, setTeamMembers] = useState([])
   const [selectedUser, setSelectedUser] = useState("")
   const [boards, setBoards] = useState([])
   const [selectedBoard, setSelectedBoard] = useState("")
   const [taskList, setTaskList] = useState([])
+
 
   useEffect(() => {
     fetchBoards()
@@ -31,6 +38,18 @@ export default function Dashboard() {
       }
     }
   }, [selectedBoard])
+
+  const handleLogout = async () => {
+    try {
+      await signOut({ 
+        redirect: true, 
+        callbackUrl: '/login' 
+      });
+      redirect('/login')
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  }
 
   const saveSelectedBoardToLocalStorage = (board) => {
     localStorage.setItem("selectedBoard", board)
@@ -266,6 +285,17 @@ export default function Dashboard() {
 
   return (
     (<main className="min-h-screen bg-blue-50 p-8">
+      <div className="absolute top-4 right-4">
+        <Button
+          variant="outline" 
+          size="sm" 
+          onClick={handleLogout}
+          className="flex items-center gap-2"
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
+      </div>
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-blue-800">Team Task</h1>
@@ -284,6 +314,11 @@ export default function Dashboard() {
             />
           </div>
         </div>
+        {user?.accessToken && (
+           <p>Hello, {user?.name}</p>
+        )}
+
+       
         {!selectedUser?.id && (
           <Card className="mb-8 bg-yellow-100 border-yellow-200">
             <CardContent className="flex items-center p-4">
