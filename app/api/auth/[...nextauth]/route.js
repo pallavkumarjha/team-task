@@ -1,35 +1,41 @@
-import { firestore } from "firebase-admin";
 import NextAuth from "next-auth";
 import SlackProvider from "next-auth/providers/slack";
+import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../../../lib/firebase";
+import { redirect } from "next/navigation";
 
 async function createUserInFirestore(user) {
     const { email, name, image } = user;
     
     try {
+      // Reference to the user document
+      const userRef = doc(db, 'users', email);
+      
       // Check if user already exists
-      const userRef = firestore.collection('users').doc(email);
-      const userDoc = await userRef.get();
+      const userSnapshot = await getDoc(userRef);
   
-      if (!userDoc.exists) {
+      if (!userSnapshot.exists()) {
         // Create new user document
-        await userRef.set({
+        await setDoc(userRef, {
           email,
           name,
           profileImage: image,
-          createdAt: new Date().toISOString(),
-          lastLogin: new Date().toISOString(),
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp(),
           boards: [], // Initialize empty boards array
-          role: 'member'
+          role: 'member',
+          status: 'active'
         });
   
         console.log(`New user created: ${email}`);
       } else {
         // Update last login time for existing user
-        await userRef.update({
-          lastLogin: new Date().toISOString()
+        await updateDoc(userRef, {
+          lastLogin: serverTimestamp(),
+          status: 'active'
         });
       }
-  
+
       return true;
     } catch (error) {
       console.error("Error creating/updating user in Firestore:", error);
@@ -54,6 +60,7 @@ const handler = NextAuth({
     async session({ session, token }) {
       session.user.id = token.sub;
       session.accessToken = token.accessToken;
+      await createUserInFirestore(session.user);
       // Call the firebase admin SDK to create a new user in Firestore
       return session;
     },
