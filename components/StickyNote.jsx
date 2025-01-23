@@ -71,13 +71,12 @@ export default function StickyNote({
     }
 
     setRequests(
-      requests?.map((req) => (req.id === editingId ? { ...req, text: editText } : req))
+      requests?.map((req) => (req.id === editingId ? { ...req, task: editText } : req))
     )
     
     const payload = {
       ...existingRequest,
       task: editText,
-      isCompleted: !existingRequest.isCompleted
     }
     onUpdateTask(payload)
 
@@ -118,10 +117,10 @@ export default function StickyNote({
   const pendingTasks = requests.filter((req) => !req.isCompleted && req.isActive).length
 
   return (
-    (<div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="bg-blue-600 p-4">
-        <h2 className="text-xl font-semibold text-white">
-          {memberName} <span className="text-sm">({pendingTasks} pending)</span>
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors duration-300"> {/* Added dark mode bg, border, and transition */}
+      <div className="bg-emerald-500 dark:bg-emerald-600 p-4 transition-colors duration-300"> {/* Emerald header */}
+        <h2 className="text-xl font-semibold text-white transition-colors duration-300">
+          {memberName} <span className="text-sm text-slate-100 dark:text-slate-300 transition-colors duration-300">({pendingTasks} pending)</span>{/*Updated pending tasks color*/}
         </h2>
       </div>
       <div className="p-4">
@@ -129,7 +128,7 @@ export default function StickyNote({
           {requests?.map((request) => (
             <li
               key={request.id}
-              className={`flex items-center gap-2 p-2 rounded ${request.isCritical ? "bg-red-100" : "bg-gray-50"} ${request.isActive === false ? "hidden" : ""}`}>
+              className={`flex items-center gap-2 p-2 rounded transition-colors duration-300 ${request.isCritical ? "bg-red-100 dark:bg-red-900" : "bg-slate-100 dark:bg-slate-700"} ${request.isActive === false ? "hidden" : ""}`}> {/* Updated background colors */}
               {editingId === request.id ? (
                 <form
                   onSubmit={(e) => {
@@ -140,17 +139,17 @@ export default function StickyNote({
                   <Input
                     value={editText}
                     onChange={(e) => setEditText(e.target.value)}
-                    className="flex-1" />
-                  <Button type="submit" size="sm" className="bg-green-500 hover:bg-green-600">
+                    className="flex-1 bg-slate-50 dark:bg-slate-600 border border-slate-300 dark:border-slate-500 text-slate-800 dark:text-slate-200" /> {/* Input styling */}
+                  <Button type="submit" size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white"> {/* Updated button color */}
                     <Check className="h-4 w-4" />
                   </Button>
                 </form>
               ) : (
                 <>
                   <span
-                    className={`flex-1 cursor-pointer ${request.isCompleted ? "line-through text-gray-400" : "text-gray-700"}`}
+                    className={`flex-1 cursor-pointer transition-colors duration-300 ${request.isCompleted ? "line-through text-slate-400 dark:text-slate-500" : "text-slate-700 dark:text-slate-300"}`} // Updated text colors
                     onClick={() => toggleRequest(request.id)}>
-                    {request.task} <span className="text-xs text-gray-500">({request.metadata.fromName})</span>
+                    {request.task} <span className="text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300">({request.metadata.fromName})</span> {/* Updated name color */}
                   </span>
                   <div className="flex items-center gap-2">
                     <Switch
@@ -158,15 +157,16 @@ export default function StickyNote({
                       onCheckedChange={() => toggleCritical(request.id)}
                       size="sm" />
                     <AlertTriangle
-                      className={`h-4 w-4 ${request.isCritical ? "text-red-500" : "text-gray-300"}`} />
+                      className={`h-4 w-4 transition-colors duration-300 ${request.isCritical ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`} /> {/* Updated icon colors */}
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => startEdit(request.id, request.task)}>
-                      <Pencil className="h-4 w-4 text-blue-500" />
+                      className="text-emerald-500 dark:text-emerald-400 transition-colors duration-300"
+                      onClick={() => startEdit(request.id, request.task)}> {/* Updated button text color */}
+                      <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => deleteRequest(request.id)}>
-                      <X className="h-4 w-4 text-red-500" />
+                    <Button variant="ghost" size="sm" className="text-red-500 transition-colors duration-300" onClick={() => deleteRequest(request.id)}> {/* Updated button text color */}
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </>
@@ -176,7 +176,6 @@ export default function StickyNote({
         </ul>
         <RequestForm onAddRequest={addRequest} selectedUser={selectedUser} />
       </div>
-    </div>)
+    </div>
   );
 }
-

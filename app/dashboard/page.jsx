@@ -284,21 +284,21 @@ export default function Dashboard() {
   }
 
   return (
-    (<main className="min-h-screen bg-blue-50 p-8">
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8 transition-colors duration-300"> {/* Updated background */}
       <div className="absolute top-4 right-4">
         <Button
           variant="outline" 
           size="sm" 
           onClick={handleLogout}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors duration-300" // Updated button styles
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4 text-slate-500 dark:text-slate-400" /> {/* Updated icon color */}
           Logout
         </Button>
       </div>
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-blue-800">Team Task</h1>
+          <h1 className="text-4xl font-bold text-emerald-600 dark:text-emerald-400 transition-colors duration-300">Team Task</h1>{/* Updated title color */}
           <div className="flex items-center gap-4">
             <BoardSelector
               boards={boards}
@@ -315,15 +315,15 @@ export default function Dashboard() {
           </div>
         </div>
         {user?.accessToken && (
-           <p>Hello, {user?.name}</p>
+           <p className="text-slate-700 dark:text-slate-300 transition-colors duration-300">Hello, {user?.name}</p>
         )}
 
        
         {!selectedUser?.id && (
-          <Card className="mb-8 bg-yellow-100 border-yellow-200">
+          <Card className="mb-8 bg-yellow-100 dark:bg-yellow-900 border-yellow-200 dark:border-yellow-700 transition-colors duration-300"> {/* Updated card styles */}
             <CardContent className="flex items-center p-4">
-              <Info className="w-6 h-6 text-yellow-600 mr-2" />
-              <p className="text-yellow-800">Please select your identity to interact with the board.</p>
+              <Info className="w-6 h-6 text-yellow-600 dark:text-yellow-400 transition-colors duration-300 mr-2" /> {/* Updated icon color */}
+              <p className="text-yellow-800 dark:text-yellow-200 transition-colors duration-300">Please select your identity to interact with the board.</p> {/* Updated text color */}
             </CardContent>
           </Card>
         )}
@@ -336,6 +336,6 @@ export default function Dashboard() {
           onUpdateTask={onUpdateTask}
         />
       </div>
-    </main>)
+    </main>
   );
 }

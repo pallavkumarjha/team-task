@@ -50,15 +50,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 dark:bg-slate-900">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
       <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-slate-800 dark:text-slate-200">
           Sign in to Team Task
         </h2>
         <Button 
           onClick={handleSlackSignIn}
-          className="w-full flex items-center justify-center space-x-2"
-          variant="outline"
+          className="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white"
         >
           <SlackIcon className="h-5 w-5" />
           <span>Sign in with Slack</span>
