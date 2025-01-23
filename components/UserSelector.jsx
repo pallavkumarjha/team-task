@@ -54,7 +54,7 @@ export default function UserSelector({
     <Popover.Root open={open} onOpenChange={setOpen} >
       <Popover.Trigger asChild>
         <button 
-          className="flex items-center justify-between w-[300px] px-3 py-2 border rounded-md hover:bg-slate-50 transition-colors"
+          className="flex items-center justify-between w-[300px] px-3 py-1.5 border rounded-md hover:bg-slate-50 transition-colors"
         >
           <span>
           Add user to board

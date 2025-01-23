@@ -5,6 +5,9 @@ import NewNoteForm from "../../components/NewNoteForm"
 import UserSelector from "../../components/UserSelector"
 import BoardSelector from "../../components/BoardSelector"
 import { Card, CardContent } from "../../components/ui/card"
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import Link from "next/link"
+
 import { Info, LogOut } from "lucide-react"
 import { db } from "../../lib/firebase"
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, setDoc, arrayUnion, getDoc } from "firebase/firestore"
@@ -150,15 +153,6 @@ export default function Dashboard() {
     }
   }
 
-  // const handleSelectUser = (user) => {
-  //   setSelectedUser(user)
-  //   // const currentUser = teamMembers.find((member) => member.id === user)
-  //   // if (currentUser) {
-  //   //   setSelectedUser(currentUser)
-  //   // }
-  //   // localStorage.setItem("selectedUser", user)
-  // }
-
   const handleSelectBoard = async (board) => {
     const boardRef = doc(db, "boards", board)
     const boardDoc = await getDoc(boardRef)
@@ -296,19 +290,53 @@ export default function Dashboard() {
     }
   }
 
+  const renderLoginArea = () => {
+    if (!user) {
+      return null
+    }
+
+    return (
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button 
+            className="hidden sm:inline-flex items-center justify-center w-10 h-10 mr-8 rounded-full border-2 border-emerald-500 hover:ring-2 hover:ring-emerald-300 transition-all"
+          >
+            <img 
+              src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`} 
+              alt={user.name} 
+              className="w-full h-full rounded-full object-cover"
+            />
+          </button>
+        </DropdownMenu.Trigger>
+
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content 
+            className="z-50 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-1 min-w-[200px] transition-colors duration-300"
+            sideOffset={5}
+          >
+            <DropdownMenu.Item 
+              className="flex items-center px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md cursor-pointer text-slate-900 dark:text-slate-200 transition-colors"
+              onSelect={handleLogout}
+            >
+              Hello, {user.name}
+            </DropdownMenu.Item>
+            <DropdownMenu.Separator className="my-1" />
+            <DropdownMenu.Item 
+              className="flex items-center px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900 rounded-md cursor-pointer text-red-500 transition-colors"
+              onSelect={handleLogout}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenu.Item>
+            <DropdownMenu.Arrow className="fill-slate-200 dark:fill-slate-700" />
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
+    )
+  }
+
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8 transition-colors duration-300"> {/* Updated background */}
-      <div className="absolute top-4 right-4">
-        <Button
-          variant="outline" 
-          size="sm" 
-          onClick={handleLogout}
-          className="flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 transition-colors duration-300" // Updated button styles
-        >
-          <LogOut className="h-4 w-4 text-slate-500 dark:text-slate-400" /> {/* Updated icon color */}
-          Logout
-        </Button>
-      </div>
+    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-emerald-600 dark:text-emerald-400 transition-colors duration-300">Team Task</h1>{/* Updated title color */}
@@ -324,11 +352,9 @@ export default function Dashboard() {
               currentMembersIds={selectedBoard?.members?.map(member => member.id) || []}
               isDisabled={!selectedBoard?.id}
             />
+            {renderLoginArea()}
           </div>
         </div>
-        {user?.accessToken && (
-           <p className="text-slate-700 dark:text-slate-300 transition-colors duration-300">Hello, {user?.name}</p>
-        )}
         {!selectedBoard?.id && (
           <Card className="mb-8 bg-yellow-100 dark:bg-yellow-900 border-yellow-200 dark:border-yellow-700 transition-colors duration-300 mt-8">
             <CardContent className="flex items-center p-4">
@@ -337,14 +363,15 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         )}
-        <Board
-          teamMembers={teamMembers}
-          selectedUser={user}
-          // onDeleteMember={deleteTeamMember}
-          onSaveTask={saveTaskInTaskCollectionWhereCollectionIdIsBoardId}
-          taskList={taskList}
-          onUpdateTask={onUpdateTask}
-        />
+        <div className="mt-8">
+          <Board
+            teamMembers={teamMembers}
+            selectedUser={user}
+            onSaveTask={saveTaskInTaskCollectionWhereCollectionIdIsBoardId}
+            taskList={taskList}
+            onUpdateTask={onUpdateTask}
+          />
+        </div>
       </div>
     </main>
   );
