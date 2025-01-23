@@ -31,7 +31,6 @@ function ContactSection() {
       return;
     }
 
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       toast.error('Please enter a valid email address');
@@ -41,23 +40,18 @@ function ContactSection() {
     setIsSubmitting(true);
 
     try {
-      // Save to Firebase collection
       const contactSubmissionsRef = collection(db, 'contact_submissions');
       await addDoc(contactSubmissionsRef, {
         ...formData,
         timestamp: serverTimestamp(),
         status: 'new'
       });
-
-      // Reset form
       setFormData({
         name: '',
         email: '',
         subject: '',
         message: ''
       });
-
-      // Show success toast
       toast.success('Message sent successfully! We will get back to you soon.');
     } catch (error) {
       console.error('Error submitting contact form:', error);
