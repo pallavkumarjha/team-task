@@ -151,6 +151,7 @@ export default function Home() {
     const currentBoard = boards.find((b) => b.id === board)
     if (currentBoard) {
       setSelectedBoard(currentBoard)
+      setSelectedUser()
       saveSelectedBoardToLocalStorage(board)
     }
   }
@@ -283,7 +284,7 @@ export default function Home() {
             />
           </div>
         </div>
-        {!selectedUser.id && (
+        {!selectedUser?.id && (
           <Card className="mb-8 bg-yellow-100 border-yellow-200">
             <CardContent className="flex items-center p-4">
               <Info className="w-6 h-6 text-yellow-600 mr-2" />

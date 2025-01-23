@@ -53,17 +53,8 @@ export default function StickyNote({
       requests?.map((req) => (req.id === id ? { ...req, isCompleted: !req.isCompleted } : req))
     )
     const payload = {
-      task: existingRequest.task,
-      id: existingRequest.id,
-      isCritical: existingRequest.isCritical,
-      isActive: existingRequest.isActive,
-      isCompleted: !existingRequest.isCompleted,
-      metadata: {
-        fromId: selectedUser.id,
-        fromName: selectedUser.name,
-        toId: memberId,
-        toName: memberName
-      }
+      ...existingRequest,
+      isCompleted: !existingRequest.isCompleted
     }
     onUpdateTask(payload)
   }
@@ -74,25 +65,19 @@ export default function StickyNote({
   }
 
   const saveEdit = () => {
-    setRequests(
-      requests?.map((req) => (req.id === editingId ? { ...req, text: editText } : req))
-    )
     const existingRequest = requests.find((req) => req.id === editingId)
     if (!existingRequest) {
       return
     }
+
+    setRequests(
+      requests?.map((req) => (req.id === editingId ? { ...req, text: editText } : req))
+    )
+    
     const payload = {
+      ...existingRequest,
       task: editText,
-      id: existingRequest.id,
-      isCritical: existingRequest.isCritical,
-      isActive: existingRequest.isActive,
-      isCompleted: existingRequest.isCompleted,
-      metadata: {
-        fromId: selectedUser.id,
-        fromName: selectedUser.name,
-        toId: memberId,
-        toName: memberName
-      }
+      isCompleted: !existingRequest.isCompleted
     }
     onUpdateTask(payload)
 
@@ -100,7 +85,6 @@ export default function StickyNote({
   }
 
   const deleteRequest = (id) => {
-    setRequests(requests.filter((req) => req.id !== id))
     const existingRequest = requests.find((req) => req.id === id)
     if (!existingRequest) {
       return
@@ -109,25 +93,13 @@ export default function StickyNote({
       requests?.map((req) => (req.id === id ? { ...req, isActive: !req.isActive } : req))
     )
     const payload = {
-      task: existingRequest.task,
-      id: existingRequest.id,
+      ...existingRequest,
       isActive: !existingRequest.isActive,
-      isCritical: existingRequest.isCritical,
-      isCompleted: existingRequest.isCompleted,
-      metadata: {
-        fromId: selectedUser.id,
-        fromName: selectedUser.name,
-        toId: memberId,
-        toName: memberName
-      }
     }
     onUpdateTask(payload)
   }
 
   const toggleCritical = (id) => {
-    setRequests(
-      requests?.map((req) => (req.id === id ? { ...req, isCritical: !req.isCritical } : req))
-    )
 
     const existingRequest = requests.find((req) => req.id === id)
     if (!existingRequest) {
@@ -137,17 +109,8 @@ export default function StickyNote({
       requests?.map((req) => (req.id === id ? { ...req, isCritical: !req.isCritical } : req))
     )
     const payload = {
-      task: existingRequest.task,
-      id: existingRequest.id,
-      isActive: existingRequest.isActive,
+      ...existingRequest,
       isCritical: !existingRequest.isCritical,
-      isCompleted: existingRequest.isCompleted,
-      metadata: {
-        fromId: selectedUser.id,
-        fromName: selectedUser.name,
-        toId: memberId,
-        toName: memberName
-      }
     }
     onUpdateTask(payload)
   }
