@@ -28,6 +28,7 @@ export default function Dashboard() {
   const [isCreatingBoard, setIsCreatingBoard] = useState(false)
   const [isCreatingTask, setIsCreatingTask] = useState(false)
   const [isAddingUserToBoard, setIsAddingUserToBoard] = useState(false)
+  const [isRemovingUser, setIsRemovingUser] = useState(false)
   const [isLoadingTasks, setIsLoadingTasks] = useState(false)
 
   useEffect(() => {
@@ -242,6 +243,66 @@ export default function Dashboard() {
     }
   }
 
+  const removeUserFromBoard = async (userToRemove) => {
+    // Confirm before removing
+    const confirmRemove = window.confirm(`Are you sure you want to remove ${userToRemove.name} from this board?`)
+    
+    if (!confirmRemove) return
+
+    setIsRemovingUser(true)
+    try {
+      if (!selectedBoard) {
+        throw new Error("No board selected")
+      }
+
+      // Remove user from board's members
+      const boardsRef = collection(db, "boards")
+      const q = query(boardsRef, where("id", "==", selectedBoard.id))
+      const querySnapshot = await getDocs(q)
+
+      if (!querySnapshot.empty) {
+        const boardDoc = querySnapshot.docs[0]
+        const boardData = boardDoc.data()
+        
+        // Filter out the user to remove
+        const updatedMembers = (boardData.members || [])
+          .filter(member => member.id !== userToRemove.id)
+        
+        // Update board document
+        await updateDoc(boardDoc.ref, {
+          members: updatedMembers
+        })
+
+        // Remove board from user's boards
+        const userRef = doc(db, "users", userToRemove.id)
+        const userDoc = await getDoc(userRef)
+        
+        if (userDoc.exists()) {
+          const userData = userDoc.data()
+          const updatedBoards = (userData.boards || [])
+            .filter(board => board.id !== selectedBoard.id)
+          
+          await updateDoc(userRef, {
+            boards: updatedBoards
+          })
+        }
+
+        // Update local state
+        setSelectedBoard(prevBoard => ({
+          ...prevBoard,
+          members: updatedMembers
+        }))
+
+        alert(`${userToRemove.name} has been removed from the board.`)
+      }
+    } catch (error) {
+      console.error("Error removing user from board:", error)
+      alert("Failed to remove user from the board")
+    } finally {
+      setIsRemovingUser(false)
+    }
+  }
+
   const saveTaskInTaskCollectionWhereCollectionIdIsBoardId = async (task) => {
     try {
       if (!selectedBoard || !selectedBoard.id) {
@@ -444,9 +505,10 @@ export default function Dashboard() {
             />
             <UserSelector
               onSaveUserToBoard={onSaveUserToBoard}
+              onRemoveUserFromBoard={removeUserFromBoard}
               currentMembersIds={selectedBoard?.members?.map(member => member.id) || []}
               isDisabled={!selectedBoard?.id}
-              isLoading={isAddingUserToBoard}
+              isLoading={isAddingUserToBoard || isRemovingUser}
             />
             {renderLoginArea()}
           </div>
@@ -468,6 +530,7 @@ export default function Dashboard() {
             onUpdateTask={onUpdateTask}
             isCreatingTask={isCreatingTask}
             isLoadingTasks={isLoadingTasks}
+            onRemoveUser={removeUserFromBoard}
           />
         </div>
       </div>

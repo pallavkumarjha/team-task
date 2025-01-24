@@ -10,7 +10,8 @@ export default function UserSelector({
   onSaveUserToBoard,
   currentMembersIds = [],
   isDisabled = false,
-  isAddingUserToBoard = false
+  isAddingUserToBoard = false,
+  isLoading = false
 }) {
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState([]);
@@ -58,14 +59,18 @@ export default function UserSelector({
   return (
     <Popover.Root open={open} onOpenChange={setOpen} >
       <Popover.Trigger asChild>
-        <button 
-          className="flex items-center justify-between w-[300px] px-3 py-1.5 border rounded-md hover:bg-slate-50 transition-colors"
-        >
-          <span>
-          Add user to board
-          </span>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </button>
+        {!isLoading ? (
+          <button 
+            className="flex items-center justify-between w-[300px] px-3 py-1.5 border rounded-md hover:bg-slate-50 transition-colors"
+          >
+            <span>
+              Add user to board
+            </span>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </button>
+        ) : (
+          <Loader2 className="animate-spin h-4 w-4 text-emerald-500" />
+        )}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content 

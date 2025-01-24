@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react"
-import { Pencil, X, Check, AlertTriangle, Loader2 } from "lucide-react"
+import { Pencil, X, Check, AlertTriangle, Loader2, Trash2 } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Switch } from "../components/ui/switch"
@@ -14,7 +14,8 @@ export default function StickyNote({
   onSaveTask,
   tasks = [],
   onUpdateTask,
-  isLoadingTasks = false
+  isLoadingTasks = false,
+  onRemoveUser
 }) {
   const [requests, setRequests] = useState([])
   const [editingId, setEditingId] = useState(null)
@@ -135,10 +136,20 @@ export default function StickyNote({
         </div>
       ) : (
         <>
-          <div className="bg-emerald-500 dark:bg-emerald-600 p-4 transition-colors duration-300">
+          <div className="bg-emerald-500 dark:bg-emerald-600 p-4 transition-colors duration-300 flex justify-between items-center">
             <h2 className="text-xl font-semibold text-white transition-colors duration-300">
               {memberName} <span className="text-sm text-slate-100 dark:text-slate-300 transition-colors duration-300">({pendingTasks} pending)</span>
             </h2>
+            {onRemoveUser && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-red-500 hover:bg-red-100 transition-colors duration-300"
+                onClick={() => onRemoveUser({ id: memberId, name: memberName })}
+              >
+                <Trash2 className="h-4 w-4 text-white" />
+              </Button>
+            )}
           </div>
           <div className="p-4">
             <ul className="space-y-2 mb-4">
