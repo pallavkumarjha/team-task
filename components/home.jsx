@@ -1,15 +1,12 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowRight, MessageSquare, Users, Zap, Moon, Sun, Menu, LogOut, User, Settings, Loader2, LogIn } from "lucide-react"
+import { ArrowRight, MessageSquare, Users, Zap, Moon, Sun, Menu, LogOut, Loader2, LogIn } from "lucide-react"
 import { signOut, useSession } from "next-auth/react";
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
-// import { useDarkMode } from "@/hooks/useDarkMode"
 import { useDarkMode } from '../hooks/useDarkMode'
 import { Button } from "../components/ui/button"
 import ContactSection from "./ContactForm"
-import Footer from "./Footer";
 import PricingCard from "./PricingCard";
 import JoinTheWaitlistSection from "./JoinTheWaitlist";
 
@@ -37,6 +34,10 @@ export default function HomePage() {
   };
 
   const renderLoginArea = () => {
+    if (!!process.env.NEXT_PUBLIC_IS_RELEASED) {
+      return null
+    }
+
     if (isGettingProfile) {
       return (
         <div className="flex items-center mr-8">
@@ -89,6 +90,16 @@ export default function HomePage() {
       >
         Login
       </Link>
+    )
+  }
+
+  const renderWaitlist = () => {
+    return (
+      <div id="waitlist">
+
+      <JoinTheWaitlistSection />
+
+      </div>
     )
   }
 
@@ -153,7 +164,7 @@ export default function HomePage() {
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
-        <JoinTheWaitlistSection />
+        {renderWaitlist()}
         <PricingSection />
         <ContactSection />
       </main>
@@ -199,10 +210,10 @@ function HeroSection() {
           Effortless note-sharing without the boring setup. Collaborate in seconds!
           </p>
           <Link
-            href="/dashboard"
+            href="/#how-it-works"
             className="inline-flex items-center px-6 py-3 bg-emerald-500 text-white font-semibold rounded-full shadow-neomorphic-light dark:shadow-neomorphic-dark hover:bg-emerald-600 transition duration-300"
           >
-            Go to Dashboard
+            Join waitlist
             <ArrowRight className="ml-2 h-5 w-5" />
           </Link>
         </div>
@@ -327,20 +338,3 @@ function PricingSection() {
     </section>
   )
 }
-
-// function JoinTheWaitlistSection() {
-//   return (
-//     <section id="join-the-waitlist" className="mb-24">
-//       <h2 className="text-3xl font-semibold mb-8 text-center">Join the Waitlist</h2>
-//       <div className="flex items-center justify-center">
-//         <Link
-//           href="/waitlist"
-//           className="bg-emerald-500 text-white px-6 py-3 rounded-full shadow-neomorphic-light dark:shadow-neomorphic-dark transition-transform hover:scale-105"
-//         >
-//           Join the Waitlist
-//         </Link>
-//       </div>
-//     </section>
-//   )
-// }
-
