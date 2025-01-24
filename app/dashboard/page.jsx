@@ -16,7 +16,6 @@ import { useSessionData } from "../../hooks/useSessionData";
 import { redirect } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Button } from "../../components/ui/button";
-import Footer from "../../components/Footer";
 
 export default function Dashboard() {
   const { user } = useSessionData();
@@ -25,7 +24,11 @@ export default function Dashboard() {
   const [selectedUser, setSelectedUser] = useState("")
   const [boards, setBoards] = useState([])
   const [selectedBoard, setSelectedBoard] = useState("")
-  const [taskList, setTaskList] = useState([])
+  const [taskList, setTaskList] = useState({})
+  const [isCreatingBoard, setIsCreatingBoard] = useState(false)
+  const [isCreatingTask, setIsCreatingTask] = useState(false)
+  const [isAddingUserToBoard, setIsAddingUserToBoard] = useState(false)
+  const [isLoadingTasks, setIsLoadingTasks] = useState(false)
 
   useEffect(() => {
     if(!user?.email) return
@@ -80,14 +83,15 @@ export default function Dashboard() {
       const tasksSnapshot = await getDoc(tasksRef)
       if (tasksSnapshot.exists()) {
         const tasksData = tasksSnapshot.data()
+        // Ensure taskList matches the structure used in onUpdateTask
         setTaskList(tasksData)
       } else {
-        setTaskList([])
+        setTaskList({})
         console.log('No tasks document found for boardId:', boardId)
       }
     } catch (error) {
       console.error('Error fetching tasks:', error)
-      return []
+      setTaskList({})
     }
   }
 
@@ -117,6 +121,7 @@ export default function Dashboard() {
 
   const createNewBoard = async (boardName) => {
     if (boardName && !boards.some(board => board.name === boardName)) {
+      setIsCreatingBoard(true)
       try {
         const boardId = uuidv4()
         const newBoard = {
@@ -143,11 +148,23 @@ export default function Dashboard() {
 
         const updatedBoards = [...boards, { ...newBoard }]
         setBoards(updatedBoards)
-        setSelectedBoard({ ...newBoard })
-        saveSelectedBoardToLocalStorage({ ...newBoard })
+        
+        // Fetch the newly created board's full data
+        const boardDocRef = doc(db, "boards", boardId)
+        const boardDoc = await getDoc(boardDocRef)
+        if (boardDoc.exists()) {
+          const fullBoardData = boardDoc.data()
+          setSelectedBoard(fullBoardData)
+          saveSelectedBoardToLocalStorage(fullBoardData.id)
+          
+          // Fetch tasks for the new board
+          await fetchTasks(boardId)
+        }
       } catch (error) {
         console.error("Error creating board:", error)
         alert("Failed to create board. Please try again.")
+      } finally {
+        setIsCreatingBoard(false)
       }
     } else {
       alert(`Board "${boardName}" already exists`)
@@ -155,20 +172,29 @@ export default function Dashboard() {
   }
 
   const handleSelectBoard = async (board) => {
-    const boardRef = doc(db, "boards", board)
-    const boardDoc = await getDoc(boardRef)
-    if (!boardDoc.exists()) {
-      throw new Error("Board document not found")
-    }
-    const boardData = boardDoc.data()
-    if (boardData) {
-      setSelectedBoard(boardData)
-      fetchTasks(boardData.id)
-      saveSelectedBoardToLocalStorage(boardData.id)
+    setIsLoadingTasks(true)
+    try {
+      const boardRef = doc(db, "boards", board)
+      const boardDoc = await getDoc(boardRef)
+      if (!boardDoc.exists()) {
+        throw new Error("Board document not found")
+      }
+      const boardData = boardDoc.data()
+      if (boardData) {
+        setSelectedBoard(boardData)
+        await fetchTasks(boardData.id)
+        saveSelectedBoardToLocalStorage(boardData.id)
+      }
+    } catch (error) {
+      console.error("Error selecting board:", error)
+      alert("Failed to select board")
+    } finally {
+      setIsLoadingTasks(false)
     }
   }
 
   const onSaveUserToBoard = async (newUser) => {
+    setIsAddingUserToBoard(true)
     try {
       const boardsRef = collection(db, "boards")
       const q = query(boardsRef, where("id", "==", selectedBoard.id))
@@ -183,6 +209,12 @@ export default function Dashboard() {
           await updateDoc(boardDoc.ref, {
             members: arrayUnion({ id: newUser.id, name: newUser.name })
           })
+          
+          // Update local state to reflect new member
+          setSelectedBoard(prevBoard => ({
+            ...prevBoard,
+            members: [...(prevBoard.members || []), { id: newUser.id, name: newUser.name }]
+          }))
         }
 
         const userRef = doc(db, "users", newUser.id)
@@ -205,6 +237,8 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Error saving user to board:", error)
       alert("Failed to add user to the board")
+    } finally {
+      setIsAddingUserToBoard(false)
     }
   }
 
@@ -273,20 +307,80 @@ export default function Dashboard() {
 
       if (updatedTask) {
         setTaskList((prevTasks) => {
+          // Create a copy of the previous tasks
           const updatedTasks = { ...prevTasks }
-          updatedTasks[task.metadata.toId] = updatedTasks[task.metadata.toId]?.map((t) => {
-            if (t.id === task.id) {
-              return updatedTask
-            } else {
-              return t
-            }
-          })
+          
+          // Find the user's tasks array
+          const userTasksArray = updatedTasks[task.metadata.toId] || []
+          
+          // Find the index of the task to update
+          const taskIndex = userTasksArray.findIndex(t => t.id === task.id)
+          
+          // If task found, replace it with the updated task
+          if (taskIndex !== -1) {
+            userTasksArray[taskIndex] = updatedTask
+          }
+          
+          // Update the tasks for the specific user
+          updatedTasks[task.metadata.toId] = userTasksArray
+          
           return updatedTasks
         })
       }
     } catch (error) {
       console.error("Error updating task:", error)
       alert(error.message || "Failed to update task")
+    }
+  }
+
+  const addRequest = async (request) => {
+    setIsCreatingTask(true)
+    try {
+      if (!selectedBoard) {
+        alert("Please select a board first")
+        return
+      }
+      if (!selectedUser) {
+        alert("Please select a user first")
+        return
+      }
+
+      const tasksRef = doc(collection(db, "tasks"), selectedBoard.id)
+      const tasksDoc = await getDoc(tasksRef)
+
+      const newTask = {
+        id: uuidv4(),
+        text: request,
+        createdAt: new Date().toISOString(),
+        createdBy: user?.email,
+        assignedTo: selectedUser.id,
+        status: "pending"
+      }
+
+      if (tasksDoc.exists()) {
+        const tasksData = tasksDoc.data()
+        const updatedTasks = tasksData.tasks ? [...tasksData.tasks, newTask] : [newTask]
+        
+        await updateDoc(tasksRef, {
+          tasks: updatedTasks
+        })
+      } else {
+        await setDoc(tasksRef, {
+          tasks: [newTask]
+        })
+      }
+
+      // Update local state
+      const updatedTaskList = tasksDoc.exists() 
+        ? [...(tasksDoc.data().tasks || []), newTask]
+        : [newTask]
+      
+      setTaskList(updatedTaskList)
+    } catch (error) {
+      console.error("Error adding task:", error)
+      alert("Failed to add task. Please try again.")
+    } finally {
+      setIsCreatingTask(false)
     }
   }
 
@@ -341,16 +435,18 @@ export default function Dashboard() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-4xl font-bold text-emerald-600 dark:text-emerald-400 transition-colors duration-300">Team Task</h1>{/* Updated title color */}
           <div className="flex items-center gap-4">
-            <BoardSelector
-              boards={boards}
-              selectedBoard={selectedBoard}
+            <BoardSelector 
+              boards={boards} 
+              selectedBoard={selectedBoard} 
               onSelectBoard={handleSelectBoard}
               onCreateBoard={createNewBoard}
+              isCreatingBoard={isCreatingBoard}
             />
             <UserSelector
               onSaveUserToBoard={onSaveUserToBoard}
               currentMembersIds={selectedBoard?.members?.map(member => member.id) || []}
               isDisabled={!selectedBoard?.id}
+              isLoading={isAddingUserToBoard}
             />
             {renderLoginArea()}
           </div>
@@ -370,6 +466,8 @@ export default function Dashboard() {
             onSaveTask={saveTaskInTaskCollectionWhereCollectionIdIsBoardId}
             taskList={taskList}
             onUpdateTask={onUpdateTask}
+            isCreatingTask={isCreatingTask}
+            isLoadingTasks={isLoadingTasks}
           />
         </div>
       </div>

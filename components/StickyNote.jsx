@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react"
-import { Pencil, X, Check, AlertTriangle } from "lucide-react"
+import { useEffect, useState, useRef } from "react"
+import { Pencil, X, Check, AlertTriangle, Loader2 } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Switch } from "../components/ui/switch"
@@ -13,13 +13,16 @@ export default function StickyNote({
   selectedUser,
   onSaveTask,
   tasks = [],
-  onUpdateTask
+  onUpdateTask,
+  isLoadingTasks = false
 }) {
   const [requests, setRequests] = useState([])
   const [editingId, setEditingId] = useState(null)
   const [editText, setEditText] = useState("")
+  const noteRef = useRef(null)
 
   useEffect(() => {
+    // Reset requests when tasks change
     setRequests(tasks)
   }, [tasks])
 
@@ -117,65 +120,81 @@ export default function StickyNote({
   const pendingTasks = requests.filter((req) => !req.isCompleted && req.isActive).length
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors duration-300"> {/* Added dark mode bg, border, and transition */}
-      <div className="bg-emerald-500 dark:bg-emerald-600 p-4 transition-colors duration-300"> {/* Emerald header */}
-        <h2 className="text-xl font-semibold text-white transition-colors duration-300">
-          {memberName} <span className="text-sm text-slate-100 dark:text-slate-300 transition-colors duration-300">({pendingTasks} pending)</span>{/*Updated pending tasks color*/}
-        </h2>
-      </div>
-      <div className="p-4">
-        <ul className="space-y-2 mb-4">
-          {requests?.map((request) => (
-            <li
-              key={request.id}
-              className={`flex items-center gap-2 p-2 rounded transition-colors duration-300 ${request.isCritical ? "bg-red-100 dark:bg-red-900" : "bg-slate-100 dark:bg-slate-700"} ${request.isActive === false ? "hidden" : ""}`}> {/* Updated background colors */}
-              {editingId === request.id ? (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    saveEdit()
-                  }}
-                  className="flex-1 flex gap-2">
-                  <Input
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    className="flex-1 bg-slate-50 dark:bg-slate-600 border border-slate-300 dark:border-slate-500 text-slate-800 dark:text-slate-200" /> {/* Input styling */}
-                  <Button type="submit" size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white"> {/* Updated button color */}
-                    <Check className="h-4 w-4" />
-                  </Button>
-                </form>
-              ) : (
-                <>
-                  <span
-                    className={`flex-1 cursor-pointer transition-colors duration-300 ${request.isCompleted ? "line-through text-slate-400 dark:text-slate-500" : "text-slate-700 dark:text-slate-300"}`} // Updated text colors
-                    onClick={() => toggleRequest(request.id)}>
-                    {request.task} <span className="text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300">({request.metadata.fromName})</span> {/* Updated name color */}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={request.isCritical}
-                      onCheckedChange={() => toggleCritical(request.id)}
-                      size="sm" />
-                    <AlertTriangle
-                      className={`h-4 w-4 transition-colors duration-300 ${request.isCritical ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`} /> {/* Updated icon colors */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-emerald-500 dark:text-emerald-400 transition-colors duration-300"
-                      onClick={() => startEdit(request.id, request.task)}> {/* Updated button text color */}
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-red-500 transition-colors duration-300" onClick={() => deleteRequest(request.id)}> {/* Updated button text color */}
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
-        <RequestForm onAddRequest={addRequest} selectedUser={selectedUser} />
-      </div>
+    <div 
+      ref={noteRef}
+      className="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors duration-300"
+      style={{
+        minHeight: '300px',
+        maxHeight: '400px',
+        overflowY: 'auto'
+      }}
+    >
+      {isLoadingTasks ? (
+        <div className="flex justify-center items-center h-full">
+          <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
+        </div>
+      ) : (
+        <>
+          <div className="bg-emerald-500 dark:bg-emerald-600 p-4 transition-colors duration-300">
+            <h2 className="text-xl font-semibold text-white transition-colors duration-300">
+              {memberName} <span className="text-sm text-slate-100 dark:text-slate-300 transition-colors duration-300">({pendingTasks} pending)</span>
+            </h2>
+          </div>
+          <div className="p-4">
+            <ul className="space-y-2 mb-4">
+              {requests?.map((request) => (
+                <li
+                  key={request.id}
+                  className={`flex items-center gap-2 p-2 rounded transition-colors duration-300 ${request.isCritical ? "bg-red-100 dark:bg-red-900" : "bg-slate-100 dark:bg-slate-700"} ${request.isActive === false ? "hidden" : ""}`}>
+                  {editingId === request.id ? (
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault()
+                        saveEdit()
+                      }}
+                      className="flex-1 flex gap-2">
+                      <Input
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        className="flex-1 bg-slate-50 dark:bg-slate-600 border border-slate-300 dark:border-slate-500 text-slate-800 dark:text-slate-200" />
+                      <Button type="submit" size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    </form>
+                  ) : (
+                    <>
+                      <span
+                        className={`flex-1 cursor-pointer transition-colors duration-300 ${request.isCompleted ? "line-through text-slate-400 dark:text-slate-500" : "text-slate-700 dark:text-slate-300"}`}
+                        onClick={() => toggleRequest(request.id)}>
+                        {request.task} <span className="text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300">({request.metadata.fromName})</span>
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={request.isCritical}
+                          onCheckedChange={() => toggleCritical(request.id)}
+                          size="sm" />
+                        <AlertTriangle
+                          className={`h-4 w-4 transition-colors duration-300 ${request.isCritical ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`} />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-emerald-500 dark:text-emerald-400 transition-colors duration-300"
+                          onClick={() => startEdit(request.id, request.task)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-red-500 transition-colors duration-300" onClick={() => deleteRequest(request.id)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <RequestForm onAddRequest={addRequest} selectedUser={selectedUser} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import { collection, query, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 export default function UserSelector({
   onSaveUserToBoard,
   currentMembersIds = [],
-  isDisabled = false
+  isDisabled = false,
+  isAddingUserToBoard = false
 }) {
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState([]);
@@ -44,7 +45,11 @@ export default function UserSelector({
   const renderCheckbox = (user) => {
     if(currentMembersIds.includes(user.id)) {
       return <Check className="h-4 w-4 text-green-500" />
-    }}
+    }
+    if(isAddingUserToBoard) {
+      return <Loader2 className="h-4 w-4 animate-spin" />
+    }
+  }
 
   if (isDisabled) {
     return null

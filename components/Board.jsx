@@ -5,7 +5,8 @@ export default function Board({
   selectedUser,
   onSaveTask,
   onUpdateTask,
-  taskList
+  taskList,
+  isLoadingTasks = false
 }) {
   const getTasksForMember = (member) => {
     return taskList[member.id] || []
@@ -22,9 +23,9 @@ export default function Board({
           selectedUser={selectedUser}
           onSaveTask={onSaveTask}
           onUpdateTask={onUpdateTask}
+          isLoadingTasks={isLoadingTasks}
         />
       ))}
     </div>)
   );
 }
-
