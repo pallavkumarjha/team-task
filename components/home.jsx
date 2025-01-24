@@ -113,7 +113,7 @@ export default function HomePage() {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">NoteHub</span>
+                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">SnapNote</span>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <NavLink href="#features">Features</NavLink>
@@ -207,7 +207,7 @@ function HeroSection() {
       <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-neomorphic-light dark:shadow-neomorphic-dark p-8 flex flex-col md:flex-row items-center justify-between">
         <div className="md:w-1/2 mb-8 md:mb-0">
           <h1 className="text-4xl font-bold mb-4">
-            Welcome to <span className="text-emerald-600 dark:text-emerald-400">NoteHub</span>
+            Welcome to <span className="text-emerald-600 dark:text-emerald-400">SnapNote</span>
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-300 mb-6">
           Effortless note-sharing without the boring setup. Collaborate in seconds!
@@ -283,7 +283,7 @@ function FeatureCard({ icon, title, description }) {
 
 function HowItWorksSection() {
   const steps = [
-    { title: "Sign In using Slack", description: "Access your NoteHub account securely using slack", icon: <LogIn className="w-8 h-8 text-emerald-500" /> },
+    { title: "Sign In using Slack", description: "Access your SnapNote account securely using slack", icon: <LogIn className="w-8 h-8 text-emerald-500" /> },
     { title: "Select Board", description: "Choose a board which you are part of or create new one", icon: <Users className="w-8 h-8 text-emerald-500" /> },
     { title: "Add a Note", description: "Write something on your team member's note. Mark it as crtitical if necessary", icon: <MessageSquare className="w-8 h-8 text-emerald-500" /> }
   ];

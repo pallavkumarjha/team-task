@@ -53,7 +53,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
       <div className="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center text-slate-800 dark:text-slate-200">
-          Sign in to Team Task
+          Sign in to Snap Note
         </h2>
         <Button 
           onClick={handleSlackSignIn}

@@ -12,7 +12,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="col-span-1 md:col-span-2">
-            <span className="text-2xl font-bold text-teal-300">Team Task</span>
+            <span className="text-2xl font-bold text-teal-300">Snap Note</span>
             <p className="mt-2 text-sm text-slate-300">
               Simplifying team communication and task management.
             </p>
@@ -65,7 +65,7 @@ export default function Footer() {
             </Button>
           </div>
           <p className="mt-8 text-base text-slate-400 md:mt-0 md:order-1">
-            &copy; 2025 Team Task. All rights reserved. <a href="/privacy" className="text-slate-400 hover:text-teal-300 transition-colors underline bold">Privacy Policy</a>
+            &copy; 2025 Snap Note. All rights reserved. <a href="/privacy" className="text-slate-400 hover:text-teal-300 transition-colors underline bold">Privacy Policy</a>
           </p>
         </div>
       </div>
