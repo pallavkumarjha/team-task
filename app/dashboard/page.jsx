@@ -179,28 +179,27 @@ export default function Dashboard() {
         
         const existingMembers = boardData.members || []
         const userExists = existingMembers.some(member => member.id === newUser.id)
-
-        // Add board to user's boards if not already added
-        const userRef = doc(db, "users", newUser.id)
-        const userDoc = await getDoc(userRef)
-        if (!userDoc.exists()) {
-          await setDoc(userRef, {
-            name: newUser.name,
-            email: newUser.email,
-            boards: [{id: board, name: board}]
+        if (!userExists) {
+          await updateDoc(boardDoc.ref, {
+            members: arrayUnion({ id: newUser.id, name: newUser.name })
           })
         }
-        
-        if (!userExists) {
-          const updatedMembers = [...existingMembers, {id: newUser.email, name: newUser.name}]
+
+        const userRef = doc(db, "users", newUser.id)
+        const userDoc = await getDoc(userRef)
+
+        if (!userDoc.exists()) {
+          console.log("User doesn't exist")
+        } else {
+          const userData = userDoc.data()
+          const existingBoards = userData.boards || []
+          const boardExists = existingBoards.some(b => b.id === selectedBoard.id)
           
-          await updateDoc(boardDoc.ref, { 
-            members: updatedMembers 
-          })
-          
-          await updateDoc(boardDoc.ref, { 
-            members: updatedMembers 
-          })
+          if (!boardExists) {
+            await updateDoc(userRef, {
+              boards: arrayUnion({ id: selectedBoard.id, name: selectedBoard.name })
+            })
+          }
         }
       }
     } catch (error) {

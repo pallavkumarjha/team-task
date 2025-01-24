@@ -16,6 +16,7 @@ export default function HomePage() {
   const [isGettingProfile, setIsGettingProfile] = useState(true)
   const { data: session, status } = useSession();
   const { user } = session || {};
+  const isReleased = !!process.env.NEXT_PUBLIC_IS_RELEASED
 
   useEffect(() => {
     document.body.classList.toggle("dark", isDarkMode)
@@ -34,7 +35,7 @@ export default function HomePage() {
   };
 
   const renderLoginArea = () => {
-    if (!!process.env.NEXT_PUBLIC_IS_RELEASED) {
+    if (isReleased) {
       return null
     }
 
@@ -117,7 +118,7 @@ export default function HomePage() {
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 <NavLink href="#features">Features</NavLink>
                 <NavLink href="#how-it-works">How It Works</NavLink>
-                <NavLink href="#pricing">Pricing</NavLink>
+                {!isReleased && <NavLink href="#pricing">Pricing</NavLink>}
                 <NavLink href="#contact">Contact</NavLink>
               </div>
             </div>
@@ -149,9 +150,11 @@ export default function HomePage() {
               <MobileNavLink href="#how-it-works" onClick={toggleMenu}>
                 How It Works
               </MobileNavLink>
-              <MobileNavLink href="#pricing" onClick={toggleMenu}>
-                Pricing
-              </MobileNavLink>
+              {!isReleased && (
+                <MobileNavLink href="#pricing" onClick={toggleMenu}>
+                  Pricing
+                </MobileNavLink>
+              )}
               <MobileNavLink href="#contact" onClick={toggleMenu}>
                 Contact
               </MobileNavLink>
@@ -165,7 +168,7 @@ export default function HomePage() {
         <FeaturesSection />
         <HowItWorksSection />
         {renderWaitlist()}
-        <PricingSection />
+        {!isReleased && <PricingSection />}
         <ContactSection />
       </main>
     </div>
