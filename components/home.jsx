@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowRight, MessageSquare, Users, Zap, Moon, Sun, Menu, LogOut, User, Settings, Loader2 } from "lucide-react"
+import { ArrowRight, MessageSquare, Users, Zap, Moon, Sun, Menu, LogOut, User, Settings, Loader2, LogIn } from "lucide-react"
 import { signOut, useSession } from "next-auth/react";
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 // import { useDarkMode } from "@/hooks/useDarkMode"
 import { useDarkMode } from '../hooks/useDarkMode'
 import { Button } from "../components/ui/button"
 import ContactSection from "./ContactForm"
+import Footer from "./Footer";
+import PricingCard from "./PricingCard";
 
 export default function HomePage() {
   const { isDarkMode, toggleDarkMode } = useDarkMode()
@@ -150,11 +152,9 @@ export default function HomePage() {
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
-        {/* <PricingSection /> */}
+        <PricingSection />
         <ContactSection />
       </main>
-
-      <Footer />
     </div>
   )
 }
@@ -267,25 +267,25 @@ function FeatureCard({ icon, title, description }) {
 
 function HowItWorksSection() {
   const steps = [
-    { title: "Sign In", description: "Access your NoteHub account securely" },
-    { title: "Select Board", description: "Choose a team member's board or create a new one" },
-    { title: "Add Note", description: "Click to create a new virtual sticky note" },
-    { title: "Write Message", description: "Type your message or request clearly" },
-    { title: "Post Note", description: "Share the note on the selected board" }
+    { title: "Sign In using Slack", description: "Access your NoteHub account securely using slack", icon: <LogIn className="w-8 h-8 text-emerald-500" /> },
+    { title: "Select Board", description: "Choose a board which you are part of or create new one", icon: <Users className="w-8 h-8 text-emerald-500" /> },
+    { title: "Add a Note", description: "Write something on your team member's note. Mark it as crtitical if necessary", icon: <MessageSquare className="w-8 h-8 text-emerald-500" /> }
   ];
 
   return (
     <section id="how-it-works" className="mb-24">
       <h2 className="text-3xl font-semibold mb-8 text-center">How It Works</h2>
       <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-neomorphic-light dark:shadow-neomorphic-dark p-8">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {steps.map((step, index) => (
             <div key={index} className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mb-4 shadow-neomorphic-light dark:shadow-neomorphic-dark">
-                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{index + 1}</span>
+              <div className="flex flex-col items-center text-center max-h-36 min-h-36">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center mb-4 shadow-neomorphic-light dark:shadow-neomorphic-dark">
+                  <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{step.icon}</span>
+                </div>
+                <h3 className="text-lg h-8 font-semibold mb-2">{step.title}</h3>
+                <p className="text-sm h-8 text-slate-600 dark:text-slate-300">{step.description}</p>
               </div>
-              <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300">{step.description}</p>
               {index < steps.length && (
                 <div className="hidden md:block w-full h-0.5 bg-emerald-200 dark:bg-emerald-700 mt-8 relative">
                   <div className="absolute right-0 top-1/2 transform translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-emerald-400 dark:bg-emerald-500 rounded-full"></div>
@@ -299,264 +299,29 @@ function HowItWorksSection() {
   )
 }
 
-// function PricingSection() {
-//   return (
-//     <section id="pricing" className="mb-24">
-//       <h2 className="text-3xl font-semibold mb-8 text-center">Pricing Plans</h2>
-//       <div className="grid md:grid-cols-3 gap-8">
-//         <PricingCard
-//           title="Basic"
-//           price="$9"
-//           features={["Up to 5 team members", "100 notes per month", "Basic integrations", "Email support"]}
-//         />
-//         <PricingCard
-//           title="Pro"
-//           price="$29"
-//           features={["Up to 20 team members", "Unlimited notes", "Advanced integrations", "Priority support"]}
-//           highlighted={true}
-//         />
-//         <PricingCard
-//           title="Enterprise"
-//           price="Custom"
-//           features={["Unlimited team members", "Unlimited notes", "Custom integrations", "24/7 dedicated support"]}
-//         />
-//       </div>
-//     </section>
-//   )
-// }
-
-// function PricingCard({
-//   title,
-//   price,
-//   features,
-//   highlighted = false,
-// }) {
-//   return (
-//     <div
-//       className={`bg-white dark:bg-slate-800 rounded-3xl shadow-neomorphic-light dark:shadow-neomorphic-dark p-6 text-center ${highlighted ? "ring-2 ring-emerald-500 dark:ring-emerald-400" : ""}`}
-//     >
-//       <h3 className="text-2xl font-semibold mb-2">{title}</h3>
-//       <div className="text-4xl font-bold mb-4">
-//         {price}
-//         <span className="text-sm font-normal">/month</span>
-//       </div>
-//       <ul className="text-left mb-6">
-//         {features.map((feature, index) => (
-//           <li key={index} className="flex items-center mb-2">
-//             <svg
-//               className="w-4 h-4 mr-2 text-emerald-500 dark:text-emerald-400"
-//               fill="none"
-//               stroke="currentColor"
-//               viewBox="0 0 24 24"
-//               xmlns="http://www.w3.org/2000/svg"
-//             >
-//               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-//             </svg>
-//             {feature}
-//           </li>
-//         ))}
-//       </ul>
-//       <button
-//         className={`w-full py-2 px-4 rounded-full font-semibold ${highlighted ? "bg-emerald-500 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200"} shadow-neomorphic-light dark:shadow-neomorphic-dark hover:opacity-90 transition-opacity`}
-//       >
-//         Choose Plan
-//       </button>
-//     </div>
-//   )
-// }
-
-// function ContactSection() {
-//   return (
-//     <section id="contact" className="mb-24">
-//       <h2 className="text-3xl font-semibold mb-8 text-center">Contact Us</h2>
-//       <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-neomorphic-light dark:shadow-neomorphic-dark p-8">
-//         <div className="grid md:grid-cols-2 gap-8">
-//           <div>
-//             <h3 className="text-xl font-semibold mb-4">Get in Touch</h3>
-//             <p className="text-slate-600 dark:text-slate-300 mb-4">
-//               Have questions or feedback? We'd love to hear from you. Fill out the form, and we'll get back to you as
-//               soon as possible.
-//             </p>
-//             <div className="space-y-2">
-//               <div className="flex items-center">
-//                 <svg
-//                   className="w-5 h-5 text-emerald-500 mr-2"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   viewBox="0 0 24 24"
-//                   xmlns="http://www.w3.org/2000/svg"
-//                 >
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     strokeWidth="2"
-//                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-//                   ></path>
-//                 </svg>
-//                 <span className="text-slate-600 dark:text-slate-300">support@notehub.com</span>
-//               </div>
-//               <div className="flex items-center">
-//                 <svg
-//                   className="w-5 h-5 text-emerald-500 mr-2"
-//                   fill="none"
-//                   stroke="currentColor"
-//                   viewBox="0 0 24 24"
-//                   xmlns="http://www.w3.org/2000/svg"
-//                 >
-//                   <path
-//                     strokeLinecap="round"
-//                     strokeLinejoin="round"
-//                     strokeWidth="2"
-//                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-//                   ></path>
-//                 </svg>
-//                 <span className="text-slate-600 dark:text-slate-300">+1 (555) 123-4567</span>
-//               </div>
-//             </div>
-//           </div>
-//           <form className="space-y-4">
-//             <div className="grid md:grid-cols-2 gap-4">
-//               <div>
-//                 <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-//                   Name
-//                 </label>
-//                 <input
-//                   type="text"
-//                   id="name"
-//                   name="name"
-//                   className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-//                 />
-//               </div>
-//               <div>
-//                 <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-//                   Email
-//                 </label>
-//                 <input
-//                   type="email"
-//                   id="email"
-//                   name="email"
-//                   className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-//                 />
-//               </div>
-//             </div>
-//             <div>
-//               <label htmlFor="subject" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-//                 Subject
-//               </label>
-//               <input
-//                 type="text"
-//                 id="subject"
-//                 name="subject"
-//                 className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-//               />
-//             </div>
-//             <div>
-//               <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-//                 Message
-//               </label>
-//               <textarea
-//                 id="message"
-//                 name="message"
-//                 rows={4}
-//                 className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-//               ></textarea>
-//             </div>
-//             <div>
-//               <Button
-//                 type="submit"
-//                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-neomorphic-light dark:shadow-neomorphic-dark text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-300"
-//               >
-//                 Send Message
-//               </Button>
-//             </div>
-//           </form>
-//         </div>
-//       </div>
-//     </section>
-//   )
-// }
-
-function Footer() {
+function PricingSection() {
   return (
-    <footer className="bg-slate-700 text-slate-200 shadow-lg">
-    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div className="col-span-1 md:col-span-2">
-          <span className="text-2xl font-bold text-teal-300">Team Task</span>
-          <p className="mt-2 text-sm text-slate-300">
-            Simplifying team communication and task management.
-          </p>
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-slate-400 tracking-wider uppercase">
-            Product
-          </h3>
-          <ul className="mt-4 space-y-4">
-            <li>
-              <a
-                href="#features"
-                className="text-base text-slate-300 hover:text-teal-300 transition-colors"
-              >
-                Features
-              </a>
-            </li>
-            <li>
-              <a
-                href="/privacy"
-                className="text-base text-slate-300 hover:text-teal-300 transition-colors"
-              >
-                Privacy Policy
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h3 className="text-sm font-semibold text-slate-400 tracking-wider uppercase">
-            Company
-          </h3>
-          <ul className="mt-4 space-y-4">
-            <li>
-              <a
-                href="#about"
-                className="text-base text-slate-300 hover:text-teal-300 transition-colors"
-              >
-                About
-              </a>
-            </li>
-            <li>
-              <a
-                href="#contact"
-                className="text-base text-slate-300 hover:text-teal-300 transition-colors"
-              >
-                Contact
-              </a>
-            </li>
-          </ul>
-        </div>
+    <section id="pricing" className="mb-24">
+      <h2 className="text-3xl font-semibold mb-8 text-center">Pricing Plans</h2>
+      <div className="grid md:grid-cols-2 gap-16">
+        <PricingCard
+          title="Basic"
+          price="Free"
+          features={["Up to 5 team members", "100 notes per month", "Basic integrations", "Email support"]}
+          highlighted={true}
+        />
+        {/* <PricingCard
+          title="Pro"
+          price="$29"
+          features={["Up to 20 team members", "Unlimited notes", "Advanced integrations", "Priority support"]}
+          highlighted={true}
+        /> */}
+        <PricingCard
+          title="Enterprise"
+          price="Custom"
+          features={["Unlimited team members", "Unlimited notes", "Custom integrations", "24/7 dedicated support"]}
+        />
       </div>
-      <div className="mt-8 border-t border-slate-600 pt-8 md:flex md:items-center md:justify-between">
-        <div className="flex space-x-6 md:order-2">
-          {['Facebook', 'Twitter', 'GitHub'].map((social) => (
-            <a 
-              key={social} 
-              href="#" 
-              className="text-slate-400 hover:text-teal-300 transition-colors"
-            >
-              <span className="sr-only">{social}</span>
-              {/* Add appropriate social media icon here */}
-              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                {/* Placeholder path, replace with actual icon paths */}
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-              </svg>
-            </a>
-          ))}
-        </div>
-        <p className="mt-8 text-base text-slate-400 md:mt-0 md:order-1">
-          &copy; 2024 Team Task. All rights reserved.
-        </p>
-      </div>
-    </div>
-  </footer>
+    </section>
   )
 }
-

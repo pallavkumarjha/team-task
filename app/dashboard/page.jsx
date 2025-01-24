@@ -16,6 +16,7 @@ import { useSessionData } from "../../hooks/useSessionData";
 import { redirect } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Button } from "../../components/ui/button";
+import Footer from "../../components/Footer";
 
 export default function Dashboard() {
   const { user } = useSessionData();
