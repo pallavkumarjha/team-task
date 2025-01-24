@@ -11,6 +11,7 @@ import { Button } from "../components/ui/button"
 import ContactSection from "./ContactForm"
 import Footer from "./Footer";
 import PricingCard from "./PricingCard";
+import JoinTheWaitlistSection from "./JoinTheWaitlist";
 
 export default function HomePage() {
   const { isDarkMode, toggleDarkMode } = useDarkMode()
@@ -152,6 +153,7 @@ export default function HomePage() {
         <HeroSection />
         <FeaturesSection />
         <HowItWorksSection />
+        <JoinTheWaitlistSection />
         <PricingSection />
         <ContactSection />
       </main>
@@ -325,3 +327,20 @@ function PricingSection() {
     </section>
   )
 }
+
+// function JoinTheWaitlistSection() {
+//   return (
+//     <section id="join-the-waitlist" className="mb-24">
+//       <h2 className="text-3xl font-semibold mb-8 text-center">Join the Waitlist</h2>
+//       <div className="flex items-center justify-center">
+//         <Link
+//           href="/waitlist"
+//           className="bg-emerald-500 text-white px-6 py-3 rounded-full shadow-neomorphic-light dark:shadow-neomorphic-dark transition-transform hover:scale-105"
+//         >
+//           Join the Waitlist
+//         </Link>
+//       </div>
+//     </section>
+//   )
+// }
+
