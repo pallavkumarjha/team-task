@@ -1,29 +1,49 @@
 "use client";
 
 import { useState } from 'react';
-import { Button } from './ui/button';
+import Link from "next/link"
+import { Mail, Twitter, Linkedin, Loader2, Send, ArrowUpRight, Clock, X } from "lucide-react"
 import { db } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { toast, Toaster } from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 
-function ContactSection() {
+const ContactSection = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    subject: '',
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const contactMethods = [
+    {
+      icon: <Mail className="h-6 w-6 text-emerald-500" />,
+      title: "Email",
+      value: "hello@snapnote.ai",
+      link: "mailto:hello@snapnote.ai"
+    },
+    {
+      icon: <X className="h-6 w-6 text-emerald-500" />,
+      title: "X",
+      value: "@snapnote",
+      link: "https://x.com/snapnote"
+    }
+  ];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
     }));
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus(null);
+
     e.preventDefault();
     
     if (!formData.name || !formData.email || !formData.subject || !formData.message) {
@@ -62,47 +82,28 @@ function ContactSection() {
   };
 
   return (
-    <section id="contact" className="mb-24">
-      <Toaster 
-        position="top-right" 
-        toastOptions={{
-          success: { duration: 4000 },
-          error: { duration: 4000 }
-        }} 
-      />
-      <h2 className="text-3xl font-semibold mb-8 text-center">Contact Us</h2>
-      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-neomorphic-light dark:shadow-neomorphic-dark p-8">
-        <div className="grid md:grid-cols-2 gap-8">
-          <div>
-            <h3 className="text-xl font-semibold mb-4">Get in Touch</h3>
-            <p className="text-slate-600 dark:text-slate-300 mb-4">
-              Have questions or feedback? We'd love to hear from you. Fill out the form, and we'll get back to you as
-              soon as possible.
-            </p>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <svg
-                  className="w-5 h-5 text-emerald-500 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  ></path>
-                </svg>
-                <span className="text-slate-600 dark:text-slate-300">pallavkumarjha26@gmail.com</span>
-              </div>
-            </div>
-          </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+    <section 
+      id="contact" 
+      className="relative py-24 overflow-hidden"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-slate-800 dark:to-slate-900 opacity-50 -z-10"></div>
+      
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-emerald-400">
+            Get in Touch
+          </h2>
+          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+            Have questions or want to learn more? We'd love to hear from you!
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12">
+          {/* Contact Form */}
+          <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+                <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Name
                 </label>
                 <input
@@ -111,11 +112,14 @@ function ContactSection() {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  required
+                  className="w-full px-4 py-3 border border-emerald-300 dark:border-emerald-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+                  placeholder="Your Name"
                 />
               </div>
+
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                   Email
                 </label>
                 <input
@@ -124,46 +128,100 @@ function ContactSection() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  required
+                  className="w-full px-4 py-3 border border-emerald-300 dark:border-emerald-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+                  placeholder="you@company.com"
                 />
               </div>
-            </div>
-            <div>
-              <label htmlFor="subject" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-                Subject
-              </label>
-              <input
-                type="text"
-                id="subject"
-                name="subject"
-                value={formData.subject}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-              />
-            </div>
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                rows={4}
-                value={formData.message}
-                onChange={handleChange}
-                className="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-inner focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-              ></textarea>
-            </div>
-            <div>
-              <Button
+
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  Message
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
+                  rows={4}
+                  className="w-full px-4 py-3 border border-emerald-300 dark:border-emerald-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all duration-300"
+                  placeholder="How can we help you?"
+                />
+              </div>
+
+              <button 
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-neomorphic-light dark:shadow-neomorphic-dark text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors duration-300"
+                className="w-full flex items-center justify-center px-6 py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-600 transition duration-300 group"
               >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
-              </Button>
+                {isSubmitting ? (
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    Send Message
+                    <Send className="ml-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </button>
+
+              {submitStatus && (
+                <div className={`mt-4 text-center ${
+                  submitStatus.type === 'success' 
+                    ? 'text-emerald-600' 
+                    : 'text-red-500'
+                }`}>
+                  {submitStatus.message}
+                </div>
+              )}
+            </form>
+          </div>
+
+          {/* Contact Methods */}
+          <div className="space-y-8">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8">
+              <h3 className="text-2xl font-bold mb-6 text-slate-900 dark:text-slate-100">
+                Alternative Contact Methods
+              </h3>
+              <div className="space-y-4">
+                {contactMethods.map((method, index) => (
+                  <Link 
+                    key={index} 
+                    href={method.link}
+                    target="_blank"
+                    className="flex items-center group hover:bg-emerald-50 dark:hover:bg-slate-700 p-4 rounded-xl transition-all duration-300"
+                  >
+                    <div className="mr-4 p-3 bg-emerald-100 dark:bg-emerald-900/20 rounded-full">
+                      {method.icon}
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                        {method.title}
+                      </h4>
+                      <p className="text-slate-600 dark:text-slate-300 group-hover:text-emerald-600 transition-colors">
+                        {method.value}
+                      </p>
+                    </div>
+                    <ArrowUpRight className="ml-auto h-5 w-5 text-slate-400 group-hover:text-emerald-500 transition-colors" />
+                  </Link>
+                ))}
+              </div>
             </div>
-          </form>
+
+            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl p-8 text-center">
+              <div className="mb-4 flex justify-center">
+                <div className="bg-emerald-100 dark:bg-emerald-900 rounded-full p-4">
+                  <Clock className="h-8 w-8 text-emerald-600" />
+                </div>
+              </div>
+              <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-slate-100">
+                Response Time
+              </h3>
+              <p className="text-slate-600 dark:text-slate-300">
+                We typically respond within 24 hours during business days.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
