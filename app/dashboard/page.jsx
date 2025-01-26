@@ -8,7 +8,7 @@ import { Card, CardContent } from "../../components/ui/card"
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import Link from "next/link"
 
-import { Info, LogOut } from "lucide-react"
+import { Delete, DeleteIcon, Info, LogOut, Trash2 } from "lucide-react"
 import { db } from "../../lib/firebase"
 import { collection, query, where, getDocs, addDoc, updateDoc, doc, setDoc, arrayUnion, getDoc } from "firebase/firestore"
 import { v4 as uuidv4 } from 'uuid'
@@ -16,6 +16,7 @@ import { useSessionData } from "../../hooks/useSessionData";
 import { redirect } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Button } from "../../components/ui/button";
+import { Header } from "../../components/Header";
 
 export default function Dashboard() {
   const { user } = useSessionData();
@@ -394,107 +395,63 @@ export default function Dashboard() {
     }
   }
 
-  const addRequest = async (request) => {
-    setIsCreatingTask(true)
-    try {
-      if (!selectedBoard) {
-        alert("Please select a board first")
-        return
-      }
-      if (!selectedUser) {
-        alert("Please select a user first")
-        return
-      }
+  // const addRequest = async (request) => {
+  //   setIsCreatingTask(true)
+  //   try {
+  //     if (!selectedBoard) {
+  //       alert("Please select a board first")
+  //       return
+  //     }
+  //     if (!selectedUser) {
+  //       alert("Please select a user first")
+  //       return
+  //     }
 
-      const tasksRef = doc(collection(db, "tasks"), selectedBoard.id)
-      const tasksDoc = await getDoc(tasksRef)
+  //     const tasksRef = doc(collection(db, "tasks"), selectedBoard.id)
+  //     const tasksDoc = await getDoc(tasksRef)
 
-      const newTask = {
-        id: uuidv4(),
-        text: request,
-        createdAt: new Date().toISOString(),
-        createdBy: user?.email,
-        assignedTo: selectedUser.id,
-        status: "pending"
-      }
+  //     const newTask = {
+  //       id: uuidv4(),
+  //       text: request,
+  //       createdAt: new Date().toISOString(),
+  //       createdBy: user?.email,
+  //       assignedTo: selectedUser.id,
+  //       status: "pending"
+  //     }
 
-      if (tasksDoc.exists()) {
-        const tasksData = tasksDoc.data()
-        const updatedTasks = tasksData.tasks ? [...tasksData.tasks, newTask] : [newTask]
+  //     if (tasksDoc.exists()) {
+  //       const tasksData = tasksDoc.data()
+  //       const updatedTasks = tasksData.tasks ? [...tasksData.tasks, newTask] : [newTask]
         
-        await updateDoc(tasksRef, {
-          tasks: updatedTasks
-        })
-      } else {
-        await setDoc(tasksRef, {
-          tasks: [newTask]
-        })
-      }
+  //       await updateDoc(tasksRef, {
+  //         tasks: updatedTasks
+  //       })
+  //     } else {
+  //       await setDoc(tasksRef, {
+  //         tasks: [newTask]
+  //       })
+  //     }
 
-      // Update local state
-      const updatedTaskList = tasksDoc.exists() 
-        ? [...(tasksDoc.data().tasks || []), newTask]
-        : [newTask]
+  //     // Update local state
+  //     const updatedTaskList = tasksDoc.exists() 
+  //       ? [...(tasksDoc.data().tasks || []), newTask]
+  //       : [newTask]
       
-      setTaskList(updatedTaskList)
-    } catch (error) {
-      console.error("Error adding task:", error)
-      alert("Failed to add task. Please try again.")
-    } finally {
-      setIsCreatingTask(false)
-    }
-  }
-
-  const renderLoginArea = () => {
-    if (!user) {
-      return null
-    }
-
-    return (
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
-          <button 
-            className="hidden sm:inline-flex items-center justify-center w-10 h-10 mr-8 rounded-full border-2 border-emerald-500 hover:ring-2 hover:ring-emerald-300 transition-all"
-          >
-            <img 
-              src={user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`} 
-              alt={user.name} 
-              className="w-full h-full rounded-full object-cover"
-            />
-          </button>
-        </DropdownMenu.Trigger>
-
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content 
-            className="z-50 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-1 min-w-[200px] transition-colors duration-300"
-            sideOffset={5}
-          >
-            <DropdownMenu.Item 
-              className="flex items-center px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md cursor-pointer text-slate-900 dark:text-slate-200 transition-colors"
-              onSelect={handleLogout}
-            >
-              Hello, {user.name}
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator className="my-1" />
-            <DropdownMenu.Item 
-              className="flex items-center px-3 py-2 hover:bg-red-50 dark:hover:bg-red-900 rounded-md cursor-pointer text-red-500 transition-colors"
-              onSelect={handleLogout}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </DropdownMenu.Item>
-            <DropdownMenu.Arrow className="fill-slate-200 dark:fill-slate-700" />
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
-    )
-  }
+  //     setTaskList(updatedTaskList)
+  //   } catch (error) {
+  //     console.error("Error adding task:", error)
+  //     alert("Failed to add task. Please try again.")
+  //   } finally {
+  //     setIsCreatingTask(false)
+  //   }
+  // }
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-900 p-8 transition-colors duration-300">
+    <>
+    <Header />
+    <main className="p-8 min-h-screen dark bg-slate-900 text-slate-100 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-bold text-emerald-600 dark:text-emerald-400 transition-colors duration-300">Snap Note</h1>{/* Updated title color */}
           <div className="flex items-center gap-4">
             <BoardSelector 
               boards={boards} 
@@ -510,7 +467,9 @@ export default function Dashboard() {
               isDisabled={!selectedBoard?.id}
               isLoading={isAddingUserToBoard || isRemovingUser}
             />
-            {renderLoginArea()}
+          </div>
+          <div>
+            <Button className="bg-red-100 hover:bg-red-300 transition-colors duration-300">Delete Board <Trash2 className="w-4 h-4 text-red-500" /></Button>
           </div>
         </div>
         {!selectedBoard?.id && (
@@ -535,5 +494,6 @@ export default function Dashboard() {
         </div>
       </div>
     </main>
+    </>
   );
 }

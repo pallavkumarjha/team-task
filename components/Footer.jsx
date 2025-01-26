@@ -25,32 +25,13 @@ export default function Footer() {
           </div>
           <div className="col-span-1 md:col-span-1">
           <div>
-            <h3 className="text-sm font-semibold text-slate-400 tracking-wider uppercase">
-              Product
-            </h3>
             <ul className="mt-4 space-y-4">
-              <li>
-                <a
-                  href="#features"
-                  className="text-base text-slate-300 hover:text-teal-300 transition-colors"
-                >
-                  Features
-                </a>
-              </li>
               <li>
                 <a
                   href="/privacy"
                   className="text-base text-slate-300 hover:text-teal-300 transition-colors"
                 >
                   Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#contact"
-                  className="text-base text-slate-300 hover:text-teal-300 transition-colors"
-                >
-                  Contact
                 </a>
               </li>
             </ul>
