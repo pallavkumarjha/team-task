@@ -23,7 +23,8 @@ export default function Footer() {
             <rect x="45" y="130" width="70" height="15" fill="#34d399" rx="4" />
           </svg>
           </div>
-          <div className="col-span-1 md:col-span-1 text-right">
+          <div className="col-span-1 md:col-span-1">
+          <div>
             <h3 className="text-sm font-semibold text-slate-400 tracking-wider uppercase">
               Product
             </h3>
@@ -53,6 +54,7 @@ export default function Footer() {
                 </a>
               </li>
             </ul>
+          </div>
           </div>
         </div>
         <div className="mt-8 border-t border-slate-600 pt-8 md:flex md:items-center md:justify-between">

@@ -1,5 +1,10 @@
+'use client'
+import { Header } from "../../components/Header";
+
 export default function PrivacyPolicy() {
     return (
+      <>
+      <Header hideDarkMode={true} />
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300"> {/* Added transition */}
         <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 shadow-lg rounded-xl p-8 border border-slate-200 dark:border-slate-700 transition-colors duration-300"> {/* Added border and transition */}
           <h1 className="text-4xl font-bold text-center mb-10 text-emerald-600 dark:text-emerald-400 transition-colors duration-300"> {/* Emerald title */}
@@ -91,5 +96,6 @@ export default function PrivacyPolicy() {
           </div>
         </div>
       </div>
+      </>
     );
   }

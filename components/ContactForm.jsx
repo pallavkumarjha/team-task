@@ -20,14 +20,14 @@ const ContactSection = () => {
     {
       icon: <Mail className="h-6 w-6 text-emerald-500" />,
       title: "Email",
-      value: "hello@snapnote.ai",
-      link: "mailto:hello@snapnote.ai"
+      value: "hello@SnapTask.tech",
+      link: "mailto:hello@SnapTask.tech"
     },
     {
       icon: <X className="h-6 w-6 text-emerald-500" />,
       title: "X",
-      value: "@snapnote",
-      link: "https://x.com/snapnote"
+      value: "@pallavjha",
+      link: "https://x.com/the_visutor"
     }
   ];
 
@@ -43,10 +43,8 @@ const ContactSection = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus(null);
-
-    e.preventDefault();
     
-    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+    if (!formData.name || !formData.email || !formData.message) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -56,8 +54,6 @@ const ContactSection = () => {
       toast.error('Please enter a valid email address');
       return;
     }
-
-    setIsSubmitting(true);
 
     try {
       const contactSubmissionsRef = collection(db, 'contact_submissions');
@@ -69,9 +65,9 @@ const ContactSection = () => {
       setFormData({
         name: '',
         email: '',
-        subject: '',
         message: ''
       });
+      setSubmitStatus('success')
       toast.success('Message sent successfully! We will get back to you soon.');
     } catch (error) {
       console.error('Error submitting contact form:', error);

@@ -3,8 +3,9 @@ import { Button } from "./ui/button"
 import { useDarkMode } from "../hooks/useDarkMode"
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { redirect } from "next/navigation"
 
-export const Header = ({ navlink, mobileNavLink, setDarkMode, isDarkMode }) => {
+export const Header = ({ navlink, mobileNavLink, setDarkMode, isDarkMode, hideDarkMode = false }) => {
     const isReleased = !!process.env.NEXT_PUBLIC_IS_RELEASED
 
     const [isGettingProfile, setIsGettingProfile] = useState(true)
@@ -86,19 +87,19 @@ export const Header = ({ navlink, mobileNavLink, setDarkMode, isDarkMode }) => {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">SnapNote</span>
+              <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => redirect("/")}>
+                <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">SnapTask</span>
               </div>
              {navlink}
             </div>
             <div className="flex items-center">
               {renderLoginArea()}
-              <Button
+             { !hideDarkMode && <Button
                 onClick={setDarkMode}
                 className="p-2 rounded-full bg-slate-200 dark:bg-slate-700 shadow-neomorphic-light dark:shadow-neomorphic-dark mr-2"
               >
                 {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
+              </Button>}
               <div className="sm:hidden">
                 <Button
                   onClick={setDarkMode}

@@ -120,14 +120,14 @@ export default function JoinTheWaitlistSection() {
               </p>
               <div className="flex justify-center space-x-4 mt-6">
                 <Link
-                  href="https://twitter.com/snapnote" 
+                  href="https://twitter.com/SnapTask" 
                   target="_blank"
                   className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                 >
                   <X className="h-6 w-6" />
                 </Link>
                 <Link 
-                  href="https://linkedin.com/company/snapnote" 
+                  href="https://linkedin.com/company/SnapTask" 
                   target="_blank"
                   className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
                 >
