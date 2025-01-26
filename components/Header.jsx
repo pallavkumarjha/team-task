@@ -1,11 +1,10 @@
-import { Menu, Moon, Sun } from "lucide-react"
+import { Menu } from "lucide-react"
 import { Button } from "./ui/button"
-import { useDarkMode } from "../hooks/useDarkMode"
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 
-export const Header = ({ navlink, mobileNavLink, setDarkMode, isDarkMode, hideDarkMode = false }) => {
+export const Header = ({ navlink, mobileNavLink, toggleMenu }) => {
     const isReleased = !!process.env.NEXT_PUBLIC_IS_RELEASED
 
     const [isGettingProfile, setIsGettingProfile] = useState(true)
@@ -79,11 +78,10 @@ export const Header = ({ navlink, mobileNavLink, setDarkMode, isDarkMode, hideDa
             Login
           </Link>
         )
-      }
-
+    }
 
     return (
-        <header className="sticky top-0 z-50 bg-white dark:bg-slate-800 shadow-neomorphic-light dark:shadow-neomorphic-dark">
+        <header className="sticky top-0 z-50 bg-slate-800 shadow-neomorphic-light dark:shadow-neomorphic-dark">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
@@ -94,15 +92,9 @@ export const Header = ({ navlink, mobileNavLink, setDarkMode, isDarkMode, hideDa
             </div>
             <div className="flex items-center">
               {renderLoginArea()}
-             { !hideDarkMode && <Button
-                onClick={setDarkMode}
-                className="p-2 rounded-full bg-slate-200 dark:bg-slate-700 shadow-neomorphic-light dark:shadow-neomorphic-dark mr-2"
-              >
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>}
               <div className="sm:hidden">
                 <Button
-                  onClick={setDarkMode}
+                  onClick={toggleMenu}
                   className="inline-flex items-center justify-center p-2 rounded-md text-slate-400 hover:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-500"
                 >
                   <Menu className="h-6 w-6" />

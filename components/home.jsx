@@ -1,21 +1,20 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { ArrowRight, MessageSquare, Users, Zap, LogIn, TicketCheck, NotebookIcon, PenIcon, Mail, Twitter, Linkedin, Loader2, Send, ArrowUpRight, Clock, Clock1, Workflow, User2Icon } from "lucide-react"
-import { useDarkMode } from '../hooks/useDarkMode'
+import { ArrowRight, MessageSquare, Users, Zap, TicketCheck, NotebookIcon, PenIcon, Clock1, Workflow, User2Icon } from "lucide-react"
 import ContactSection from "./ContactForm";
 import PricingCard from "./PricingCard";
 import JoinTheWaitlistSection from "./JoinTheWaitlist";
 import { Header } from "./Header";
 
 export default function HomePage() {
-  const { isDarkMode, toggleDarkMode } = useDarkMode()
+  const { isDarkMode } = useState(true)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const isReleased = !!process.env.NEXT_PUBLIC_IS_RELEASED
 
-  useEffect(() => {
-    document.body.classList.toggle("dark", isDarkMode)
-  }, [isDarkMode])
+  // useEffect(() => {
+  //   document.body.classList.toggle("dark", isDarkMode)
+  // }, [isDarkMode])
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const renderWaitlist = () => {
@@ -511,9 +510,9 @@ export default function HomePage() {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "dark bg-slate-900 text-slate-100" : "bg-slate-50 text-slate-800"} transition-colors duration-300`}
+      className={`min-h-screen dark bg-slate-900 text-slate-100 transition-colors duration-300`}
     >
-      <Header navlink={getNavlinks()} mobileNavlink={getMobileNavlinks()} setDarkMode={toggleDarkMode} isDarkMode={isDarkMode} />
+      <Header navlink={getNavlinks()} mobileNavlink={getMobileNavlinks()} toggleMenu={toggleMenu} />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <HeroSection />
         <ProblemSection />
