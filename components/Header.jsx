@@ -88,9 +88,10 @@ export const Header = ({ navlink, mobileNavLink, toggleMenu }) => {
               <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => redirect("/")}>
                 <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">SnapTask</span>
               </div>
-             {navlink}
             </div>
             <div className="flex items-center">
+
+             {navlink}
               {renderLoginArea()}
               <div className="sm:hidden">
                 <Button
