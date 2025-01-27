@@ -1,14 +1,18 @@
-import { Menu } from "lucide-react"
+import { Loader2, LogOut, Menu, SlackIcon } from "lucide-react"
 import { Button } from "./ui/button"
 import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
+import { signOut, useSession, signIn } from "next-auth/react"
 import { redirect } from "next/navigation"
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import * as Dialog from '@radix-ui/react-dialog';
 
 export const Header = ({ navlink, mobileNavLink, toggleMenu }) => {
     const isReleased = !!process.env.NEXT_PUBLIC_IS_RELEASED
 
     const [isGettingProfile, setIsGettingProfile] = useState(true)
+    const [isSigningIn, setIsSigningIn] = useState(false)
     const { data: session, status: profileStatus } = useSession();
+    const user = session?.user;
 
     useEffect(() => {
         if (profileStatus !== 'loading') {
@@ -20,11 +24,25 @@ export const Header = ({ navlink, mobileNavLink, toggleMenu }) => {
         await signOut({ callbackUrl: '/login' });
       };
 
+    const handleSlackSignIn = async () => {
+      try {
+        setIsSigningIn(true);
+        await signIn('slack', { 
+          callbackUrl: '/dashboard' 
+        });
+      } catch (error) {
+        console.error("Slack Sign-In Error:", error);
+      } finally {
+        setIsSigningIn(false);
+      }
+    }
+
     const renderLoginArea = () => {
-        if (isReleased) {
-          return null
-        }
-    
+      console.log(isReleased)
+      if(!isReleased) {
+        return null
+      }
+
         if (isGettingProfile) {
           return (
             <div className="flex items-center mr-8">
@@ -71,12 +89,35 @@ export const Header = ({ navlink, mobileNavLink, toggleMenu }) => {
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
         ) : (
-          <Link
-            href="/login"
-            className="hidden sm:inline-flex items-center px-4 mr-16 py-2 border border-transparent text-sm font-medium rounded-full shadow-neomorphic-light dark:shadow-neomorphic-dark text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600"
-          >
-            Login
-          </Link>
+          <Dialog.Root>
+            <Dialog.Trigger asChild>
+              <button className="hidden sm:inline-flex items-center px-4 mr-16 py-2 border border-transparent text-sm font-medium rounded-full shadow-neomorphic-light dark:shadow-neomorphic-dark text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600">
+                Login
+              </button>
+            </Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+              <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-800 p-8 rounded-xl shadow-lg w-full max-w-md">
+                <Dialog.Title className="text-2xl font-bold mb-6 text-center text-slate-800 dark:text-slate-200">
+                  Sign in to Snap Note
+                </Dialog.Title>
+                <Button 
+                  onClick={handleSlackSignIn}
+                  disabled={isSigningIn}
+                  className="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                >
+                  {isSigningIn ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <>
+                      <SlackIcon className="h-5 w-5" />
+                      <span>Sign in with Slack</span>
+                    </>
+                  )}
+                </Button>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
         )
     }
 
@@ -90,8 +131,7 @@ export const Header = ({ navlink, mobileNavLink, toggleMenu }) => {
               </div>
             </div>
             <div className="flex items-center">
-
-             {navlink}
+              {navlink}
               {renderLoginArea()}
               <div className="sm:hidden">
                 <Button
