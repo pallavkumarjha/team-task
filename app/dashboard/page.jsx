@@ -7,32 +7,53 @@ import { Card, CardContent } from "../../components/ui/card"
 import Link from "next/link"
 
 import { Info, Loader2, LogOut, Trash2 } from "lucide-react"
+import DeleteBoardDialog from "../../components/DeleteBoardDialog"
 import { getBoardsList, createNewBoard, fetchBoardData, deleteBoard, removeUserFromBoard } from "../../services/boardService"
-import { collection, doc, getDoc, deleteDoc, updateDoc, query, where, arrayUnion } from "firebase/firestore"
+import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore"
 import { db } from "../../lib/firebase"
 import { fetchTasks, onUpdateTask, saveTask } from "../../services/taskService"
 import { Button } from "../../components/ui/button";
 import { Header } from "../../components/Header";
 import { useSession } from "next-auth/react";
+import CreateBoardDialog from "../../components/CreateBoardDialog";
 
 export default function Dashboard() {
-  const { data: session  } = useSession();
-  const user  = session?.user;
+  const { data: session, status  } = useSession();
+  const user = session?.user;
 
   const [teamMembers, setTeamMembers] = useState([])
   const [boards, setBoards] = useState([])
   const [selectedBoard, setSelectedBoard] = useState("")
   const [taskList, setTaskList] = useState({})
   const [isCreatingBoard, setIsCreatingBoard] = useState(false)
-  const [isCreatingTask, setIsCreatingTask] = useState(false)
   const [isAddingUserToBoard, setIsAddingUserToBoard] = useState(false)
   const [isRemovingUser, setIsRemovingUser] = useState(false)
   const [isLoadingTasks, setIsLoadingTasks] = useState(false)
+  const [isCreateBoardOpen, setIsCreateBoardOpen] = useState(false)
+  const [isDeleteBoardOpen, setIsDeleteBoardOpen] = useState(false)
+  const [isUserLoading, setIsUserLoading] = useState(true);
 
   useEffect(() => {
     if(!user?.email) return
     fetchBoards()
-  }, [user])
+
+    const pollingInterval = setInterval(() => {
+      if (selectedBoard?.id) {
+        fetchBoardData(selectedBoard.id).then(boardData => {
+          setSelectedBoard(boardData)
+          fetchTasks(boardData.id).then(setTaskList)
+        })
+      }
+      fetchBoards()
+    }, 5 * 60 * 1000)
+    return () => clearInterval(pollingInterval)
+  }, [user, selectedBoard?.id])
+
+  useEffect(() => {
+    if (status !== 'loading') {
+      setIsUserLoading(false);
+    }
+  }, [status]);
 
   useEffect(() => {
     if (selectedBoard) {
@@ -191,103 +212,134 @@ export default function Dashboard() {
     }
   }
 
+  const renderWarnings = () => {
+    if(isUserLoading) {
+      return (
+        <div className="text-center mb-8">
+          <Loader2 className="animate-spin h-10 w-10 mx-auto" />
+          <p className="mt-2 text-sm text-slate-400">Loading...</p>
+        </div>
+      )
+    }
+
+    return !user?.email ? (
+      <Card className="mb-8 bg-red-50 dark:bg-red-900/50 border-2 border-red-300 dark:border-red-700 shadow-lg hover:shadow-xl transition-all duration-300 mt-8 group">
+        <CardContent className="flex items-center justify-between p-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full group-hover:scale-110 transition-transform duration-300">
+              <LogOut className="w-6 h-6 text-red-700 dark:text-red-300" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg text-red-800 dark:text-red-200 mb-1">Authentication Required</h3>
+              <p className="text-red-700 dark:text-red-300">Please login to access your boards and collaborate with your team.</p>
+            </div>
+          </div>
+          <Link href="/login">
+            <Button className="bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-700 transition-colors duration-300">
+              Login Now
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    ) : !selectedBoard?.id && (
+      <Card className="mb-8 bg-yellow-50 dark:bg-yellow-900/50 border-2 border-yellow-300 dark:border-yellow-700 shadow-lg hover:shadow-xl transition-all duration-300 mt-8 group">
+        <CardContent className="flex items-center justify-between p-6">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-full group-hover:scale-110 transition-transform duration-300">
+              <Info className="w-6 h-6 text-yellow-700 dark:text-yellow-300" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg text-yellow-800 dark:text-yellow-200 mb-1">No Board Selected</h3>
+              <p className="text-yellow-700 dark:text-yellow-300">Select or create a board to start collaborating with your team.</p>
+            </div>
+          </div>
+          <Button 
+            onClick={() => setIsCreateBoardOpen(true)}
+            className="bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-800 text-yellow-800 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 transition-colors duration-300"
+          >
+            Create Board
+          </Button>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <>
     <Header />
     <main className="p-8 min-h-screen dark bg-slate-900 text-slate-100 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline"
-              disabled={isCreatingBoard}
-              onClick={() => {
-                const boardName = prompt("Enter the name of the new board:");
-                if (boardName && boardName.trim()) {
-                  handleCreateBoard(boardName.trim());
-                }
-              }}
-            >
-            {isCreatingBoard ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Create board +"
-            )}
-            </Button>
-            <BoardSelector 
-              boards={boards} 
-              selectedBoard={selectedBoard} 
-              onSelectBoard={handleSelectBoard}
-            />
-            <UserSelector
-              onSaveUserToBoard={onSaveUserToBoard}
-              onRemoveUserFromBoard={removeUser}
-              currentMembersIds={selectedBoard?.members?.map(member => member.id) || []}
-              isDisabled={!selectedBoard?.id}
-              isLoading={isAddingUserToBoard || isRemovingUser}
-            />
-          </div>
-          <div>
-            {selectedBoard?.createdBy === user?.email && (
+        <div className="backdrop-blur-md bg-white/10 dark:bg-slate-800/10 rounded-2xl p-6 shadow-xl border border-slate-200/20 dark:border-slate-700/20 mb-8 transition-all duration-300 hover:shadow-2xl">
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+            <div className="flex flex-wrap items-center gap-4">
               <Button 
-                onClick={async () => {
-                  await deleteBoard(selectedBoard.id, selectedBoard.members)
-                  setSelectedBoard("");
-                  setTaskList({});
-                  localStorage.removeItem("selectedBoard");
-                }}
-                className="bg-red-100 hover:bg-red-300 transition-colors duration-300"
+                variant="outline"
+                disabled={isCreatingBoard}
+                onClick={() => setIsCreateBoardOpen(true)}
+                className="relative overflow-hidden group bg-gradient-to-r from-emerald-500/10 to-emerald-600/10 hover:from-emerald-500/20 hover:to-emerald-600/20 border-emerald-500/30 hover:border-emerald-500/50 text-emerald-600 dark:text-emerald-400 transition-all duration-300"
               >
-                Delete Board <Trash2 className="w-4 h-4 text-red-500" />
+                {isCreatingBoard ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <span className="relative z-10">Create board</span>
+                    <span className="absolute inset-0 transform translate-y-full group-hover:translate-y-0 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 transition-transform duration-300"></span>
+                    <span className="ml-2 text-lg font-bold leading-none">+</span>
+                  </>
+                )}
               </Button>
-            )}
+              <CreateBoardDialog
+                isOpen={isCreateBoardOpen}
+                onClose={() => setIsCreateBoardOpen(false)}
+                onCreateBoard={handleCreateBoard}
+                isCreating={isCreatingBoard}
+              />
+              <div className="flex items-center gap-4 flex-1">
+                <BoardSelector 
+                  boards={boards} 
+                  selectedBoard={selectedBoard} 
+                  onSelectBoard={handleSelectBoard}
+                  className="min-w-[200px]"
+                />
+                <UserSelector
+                  onSaveUserToBoard={onSaveUserToBoard}
+                  currentMembersIds={selectedBoard?.members?.map(member => member.id) || []}
+                  isDisabled={!selectedBoard?.id}
+                  isLoading={isAddingUserToBoard || isRemovingUser}
+                />
+              </div>
+            </div>
+            <div>
+              {selectedBoard?.createdBy === user?.email && (
+                <>
+                  <Button 
+                    onClick={() => setIsDeleteBoardOpen(true)}
+                    className="bg-red-500/10 hover:bg-red-500/20 text-red-500 border-red-500/30 hover:border-red-500/50 transition-all duration-300 group relative overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center">
+                      Delete Board
+                      <Trash2 className="w-4 h-4 ml-2 transform group-hover:rotate-12 transition-transform duration-300" />
+                    </span>
+                    <span className="absolute inset-0 transform translate-y-full group-hover:translate-y-0 bg-red-500/10 transition-transform duration-300"></span>
+                  </Button>
+                  <DeleteBoardDialog
+                    isOpen={isDeleteBoardOpen}
+                    onClose={() => setIsDeleteBoardOpen(false)}
+                    onConfirm={async () => {
+                      await deleteBoard(selectedBoard.id, selectedBoard.members, user, setBoards);
+                      setSelectedBoard("");
+                      setTaskList({});
+                      localStorage.removeItem("selectedBoard");
+                      setIsDeleteBoardOpen(false);
+                    }}
+                    boardName={selectedBoard?.name}
+                  />
+                </>
+              )}
+            </div>
           </div>
         </div>
-        {!user?.email ? (
-          <Card className="mb-8 bg-red-50 dark:bg-red-900/50 border-2 border-red-300 dark:border-red-700 shadow-lg hover:shadow-xl transition-all duration-300 mt-8 group">
-            <CardContent className="flex items-center justify-between p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-red-100 dark:bg-red-900 rounded-full group-hover:scale-110 transition-transform duration-300">
-                  <LogOut className="w-6 h-6 text-red-700 dark:text-red-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-red-800 dark:text-red-200 mb-1">Authentication Required</h3>
-                  <p className="text-red-700 dark:text-red-300">Please login to access your boards and collaborate with your team.</p>
-                </div>
-              </div>
-              <Link href="/login">
-                <Button className="bg-red-100 hover:bg-red-200 dark:bg-red-900 dark:hover:bg-red-800 text-red-800 dark:text-red-200 border border-red-300 dark:border-red-700 transition-colors duration-300">
-                  Login Now
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        ) : !selectedBoard?.id && (
-          <Card className="mb-8 bg-yellow-50 dark:bg-yellow-900/50 border-2 border-yellow-300 dark:border-yellow-700 shadow-lg hover:shadow-xl transition-all duration-300 mt-8 group">
-            <CardContent className="flex items-center justify-between p-6">
-              <div className="flex items-center space-x-4">
-                <div className="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-full group-hover:scale-110 transition-transform duration-300">
-                  <Info className="w-6 h-6 text-yellow-700 dark:text-yellow-300" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-yellow-800 dark:text-yellow-200 mb-1">No Board Selected</h3>
-                  <p className="text-yellow-700 dark:text-yellow-300">Select or create a board to start collaborating with your team.</p>
-                </div>
-              </div>
-              <Button 
-                onClick={() => {
-                  const boardName = prompt("Enter the name of the new board:");
-                  if (boardName && boardName.trim()) {
-                    handleCreateBoard(boardName.trim());
-                  }
-                }}
-                className="bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-900 dark:hover:bg-yellow-800 text-yellow-800 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700 transition-colors duration-300"
-              >
-                Create Board
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+        {renderWarnings()}
         <div className="mt-8">
           <Board
             teamMembers={teamMembers}
@@ -295,7 +347,6 @@ export default function Dashboard() {
             onSaveTask={handleSaveTask}
             taskList={taskList}
             onUpdateTask={onUpdateTaskItem}
-            isCreatingTask={isCreatingTask}
             isLoadingTasks={isLoadingTasks}
             onRemoveUser={removeUser}
           />

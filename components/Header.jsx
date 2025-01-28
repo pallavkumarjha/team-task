@@ -37,8 +37,11 @@ export const Header = ({ navlink, mobileNavLink, toggleMenu }) => {
       }
     }
 
+    const navigateToDasboard = () => {
+      redirect('/dashboard')
+    }
+
     const renderLoginArea = () => {
-      console.log(isReleased)
       if(!isReleased) {
         return null
       }
@@ -72,9 +75,14 @@ export const Header = ({ navlink, mobileNavLink, toggleMenu }) => {
               >
                 <DropdownMenu.Item 
                   className="flex items-center px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md cursor-pointer text-slate-900 dark:text-slate-200 transition-colors"
-                  onSelect={handleLogout}
                 >
                   Hello, {session.user.name}
+                </DropdownMenu.Item>
+                <DropdownMenu.Item 
+                  className="flex items-center px-3 py-2 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-md cursor-pointer text-slate-900 dark:text-slate-200 transition-colors"
+                  onSelect={navigateToDasboard}
+                >
+                  Dashboard
                 </DropdownMenu.Item>
                 <DropdownMenu.Separator className="my-1" />
                 <DropdownMenu.Item 

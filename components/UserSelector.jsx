@@ -61,7 +61,7 @@ export default function UserSelector({
       <Popover.Trigger asChild>
         {!isLoading ? (
           <button 
-            className="flex items-center justify-between w-[300px] px-3 py-1.5 border rounded-md hover:bg-slate-50 transition-colors"
+            className="flex items-center justify-between w-[300px] px-3 py-1.5 border rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 transition-colors"
           >
             <span>
               Add user to board
@@ -74,7 +74,7 @@ export default function UserSelector({
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Content 
-          className="z-50 w-[300px] bg-white rounded-lg shadow-lg border border-slate-200 p-2"
+          className="z-50 w-[300px] bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-2"
           sideOffset={5}
         >
           <div className="mb-2">
@@ -83,12 +83,12 @@ export default function UserSelector({
               placeholder="Search users..."
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
-              className="w-full px-2 py-1 border rounded-md text-sm"
+              className="w-full px-2 py-1 border rounded-md text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 border-slate-200 dark:border-slate-600 placeholder-slate-500 dark:placeholder-slate-400"
             />
           </div>
           
           {filteredUsers.length === 0 ? (
-            <div className="text-center text-slate-500 py-2">
+            <div className="text-center text-slate-500 dark:text-slate-400 py-2">
               No users found
             </div>
           ) : (
@@ -100,11 +100,11 @@ export default function UserSelector({
                     onSaveUserToBoard(user);
                     setOpen(false);
                   }}
-                  className="flex justify-between items-center px-2 py-1 hover:bg-slate-100 cursor-pointer rounded-md"
+                  className="flex justify-between items-center px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer rounded-md transition-colors duration-200"
                 >
                   <div>
-                    <span className="font-medium">{user.name}</span>
-                    <span className="text-xs text-slate-500 ml-2">({user.email})</span>
+                    <span className="font-medium text-slate-900 dark:text-slate-100">{user.name}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">({user.email})</span>
                   </div>
                   {renderCheckbox(user)}
                 </li>

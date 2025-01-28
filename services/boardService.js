@@ -88,10 +88,7 @@ export const fetchBoardData = async (boardId) => {
   }
 };
 
-export const deleteBoard = async (board, members) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this board? This action cannot be undone.');
-    if (!confirmDelete) return;
-
+export const deleteBoard = async (board, members, user, setBoards) => {
     try {
       const boardRef = doc(db, "boards", board);
       const boardDoc = await getDoc(boardRef);
@@ -129,10 +126,6 @@ export const deleteBoard = async (board, members) => {
 };
 
 export const removeUserFromBoard = async (userToRemove, selectedBoard, setIsRemovingUser, setSelectedBoard) => {
-  const confirmRemove = window.confirm(`Are you sure you want to remove ${userToRemove.name} from this board?`)
-  
-  if (!confirmRemove) return
-
   setIsRemovingUser(true)
   try {
     if (!selectedBoard?.id) {
