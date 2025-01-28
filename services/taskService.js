@@ -6,7 +6,6 @@ export const fetchTasks = async (boardId) => {
     const tasksRef = doc(collection(db, "tasks"), boardId);
     const tasksSnapshot = await getDoc(tasksRef);
     if (tasksSnapshot.exists()) {
-        console.log('Tasks data:', tasksSnapshot.data());
       return tasksSnapshot.data();
     }
     return {};
