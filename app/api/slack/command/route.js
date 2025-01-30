@@ -9,8 +9,9 @@ export async function POST(req) {
     const channelId = formData.get('channel_id');
 
     // Handle different commands
+    console.log('slack command',command, text, userId, channelId);
     switch (command) {
-      case '/add-task':
+      case '/task-add':
         return handleTaskCommand(text, userId, channelId);
       
       case '/tasks-list':

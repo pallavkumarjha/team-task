@@ -5,6 +5,8 @@ export async function POST(req) {
     const formData = await req.formData();
     const payload = JSON.parse(formData.get('payload'));
 
+    console.log('slack interaction',payload, formData);
+
     switch (payload.type) {
       case 'block_actions':
         return handleBlockActions(payload);
