@@ -9,12 +9,12 @@ export async function POST(req) {
     const channelId = formData.get('channel_id');
 
     // Handle different commands
-    console.log('slack command',command, text, userId, channelId);
+    console.log('slack command',command, text, userId, channelId, formData);
     switch (command) {
       case '/task-add':
         return handleTaskCommand(text, userId, channelId);
       
-      case '/tasks-list':
+      case '/task-list':
         return handleTasksList(userId);
       
       case '/help':
@@ -40,7 +40,7 @@ async function handleTaskCommand(text, userId, channelId) {
   if (!text) {
     return NextResponse.json({
       response_type: 'ephemeral',
-      text: 'Please provide a task description. Example: /task Create new project timeline'
+      text: `Please provide a task description. Example: /task Create new project timeline ${userId} in ${channelId}`
     });
   }
 
@@ -50,7 +50,7 @@ async function handleTaskCommand(text, userId, channelId) {
 
     return NextResponse.json({
       response_type: 'in_channel',
-      text: `New task created: ${text}`
+      text: `New task created: ${text} for <@${userId}> in <#${channelId}>`
     });
   } catch (error) {
     console.error('Task Creation Error:', error);
