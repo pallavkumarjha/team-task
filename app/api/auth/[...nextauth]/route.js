@@ -5,13 +5,10 @@ import { db } from "../../../../lib/firebase";
 import { redirect } from "next/navigation";
 
 async function createUserInFirestore(user) {
-    const { email, name, image } = user;
+    const { email, name, image, id } = user;
     
     try {
-      // Reference to the user document
       const userRef = doc(db, 'users', email);
-      
-      // Check if user already exists
       const userSnapshot = await getDoc(userRef);
   
       if (!userSnapshot.exists()) {
@@ -24,7 +21,8 @@ async function createUserInFirestore(user) {
           lastLogin: serverTimestamp(),
           boards: [], // Initialize empty boards array
           role: 'member',
-          status: 'active'
+          status: 'active',
+          slackId: id
         });
   
         console.log(`New user created: ${email}`);
@@ -51,16 +49,25 @@ const handler = NextAuth({
       clientSecret: process.env.SLACK_CLIENT_SECRET,
       authorization: {
         params: { 
-          scope: ["openid","profile","email"],
+          scope: [
+            "openid",
+            "profile",
+            "email",
+            "identity.basic",
+            "identity.team",
+          ],
         }
       }
     })
   ],
   callbacks: {
-    async session({ session, token }) {
+    async session({ session, token, profile }) {
       session.user.id = token.sub;
       session.accessToken = token.accessToken;
-      await createUserInFirestore(session.user);
+      console.log('session', session)
+      console.log('token', token)
+      console.log('profile', profile)
+      await createUserInFirestore(session.user, token, profile);
       // Call the firebase admin SDK to create a new user in Firestore
       return session;
     },
