@@ -52,9 +52,7 @@ const handler = NextAuth({
           scope: [
             "openid",
             "profile",
-            "email",
-            "identity.basic",
-            "identity.team",
+            "email"
           ],
         }
       }
