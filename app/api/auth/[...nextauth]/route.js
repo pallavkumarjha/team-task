@@ -62,9 +62,9 @@ const handler = NextAuth({
     async session({ session, token, profile }) {
       session.user.id = token.sub;
       session.accessToken = token.accessToken;
-      console.log('session', session)
-      console.log('token', token)
-      console.log('profile', profile)
+      // console.log('session', session)
+      // console.log('token', token)
+      // console.log('profile', profile)
       await createUserInFirestore(session.user, token, profile);
       // Call the firebase admin SDK to create a new user in Firestore
       return session;

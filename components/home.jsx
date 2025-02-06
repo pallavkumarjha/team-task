@@ -9,6 +9,8 @@ import HowItWorksSection from "./home/HowItWorksSection";
 import ProblemSection from "./home/ProblemSection";
 import KeyFeaturesSection from "./home/KeyFeaturesSection";
 import { getNavlinks, getMobileNavlinks } from "./home/Navigation";
+import Footer from "../components/Footer";
+
 
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -64,6 +66,7 @@ export default function HomePage() {
         {!isReleased && <PricingSection />}
         <ContactSection />
       </main>
+      <Footer />
     </div>
   )
 }
