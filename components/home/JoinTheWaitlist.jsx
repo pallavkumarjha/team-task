@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { ArrowRight, Check, Linkedin, Loader2, Mail, X } from "lucide-react";
 import Link from "next/link";
-import { db } from '../lib/firebase';
+import { db } from '../../lib/firebase';
 import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 
